@@ -18,6 +18,30 @@
   -webkit-text-size-adjust: 100%;
 }
 
+.headerNavOption::before {
+  transform: scaleX(0);
+  transform-origin: bottom right;
+}
+
+.headerNavOption:hover::before {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.headerNavOption::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  inset: 0 0 0 0;
+  border-bottom: 2px solid #40916C;
+  z-index: -1;
+  transition: transform 0.3s ease;
+}
+
 #root {
   max-width: 80%;
   margin: 0 auto;

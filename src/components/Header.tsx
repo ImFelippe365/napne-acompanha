@@ -1,27 +1,27 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { BiUser } from "react-icons/bi";
+
 const Header: React.FC = () => {
+  const { pathname } = useLocation();
+  const currentPath = "/" + pathname?.split("/")[1];
+
   const paths = [
     {
       title: "Visão geral",
       path: "/",
-      currentPage: true,
     },
     {
       title: "Discentes",
-      path: "/",
-      currentPage: false,
+      path: "/discentes",
     },
     {
       title: "Eventos",
-      path: "/",
-      currentPage: false,
+      path: "/eventos",
     },
     {
       title: "Gestão acadêmica",
-      path: "/",
-      currentPage: false,
+      path: "/gestao-academica",
     },
   ];
 
@@ -29,16 +29,20 @@ const Header: React.FC = () => {
     <header className="w-full flex flex-row items-center justify-between px-6">
       <span>Logo aqui</span>
       <nav>
-        <ul className="flex flex-row items-center gap-8">
-          {paths.map(({ title, path, currentPage }, index) => (
-            <li
-              key={index}
-              className={`py-4 text-gray font-normal ${
-                currentPage ? "text-primary !font-semibold border-b-2" : ""
-              }`}
-            >
-              <Link to={path}>{title}</Link>
-            </li>
+        <ul className="flex flex-row items-center gap-6">
+          {paths.map(({ title, path }, index) => (
+            <Link to={path}>
+              <li
+                key={index}
+                className={`p-4 text-gray font-normal inset-0 relative hover:opacity-80 ${
+                  currentPath === path
+                    ? "text-primary !font-semibold border-b-2"
+                    : "headerNavOption"
+                }`}
+              >
+                {title}
+              </li>
+            </Link>
           ))}
         </ul>
       </nav>

@@ -1,17 +1,21 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import Header from "../components/Header";
+import App from "../App";
+import Students from "../pages/Students";
 
 // Routes for authenticated users
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<Header />}>
+      <Route path="/" element={<App />}>
         <Route
           path="login"
           element={<span className="font-bold text-red-500">faça login </span>}
         />
-        <Route path="signup" element={<div>cria conta</div>} />
+        <Route path="discentes" element={<Students />} />
+        <Route path="discentes/:id" element={<div>perfil do discente</div>} />
+        <Route path="eventos" element={<div>eventos</div>} />
+        <Route path="gestao-academica" element={<div>gestão acadêmica</div>} />
       </Route>
     </Routes>
   );
