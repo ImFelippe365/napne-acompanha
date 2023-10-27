@@ -9,12 +9,12 @@ interface TCellProps
   contrast?: boolean;
 }
 
-const TCell = ({ children, contrast, ...props }: TCellProps) => {
+const TCell = ({ children, contrast, className, ...props }: TCellProps) => {
+  const mergedClasses = `${contrast ? "font-bold text-black" : "text-gray"} text-base py-3 ${className || ''}`;
+  
   return (
     <td
-      className={`${
-        contrast ? "font-bold text-black" : "text-gray"
-      } text-base py-3`}
+      className={`${mergedClasses}`}
       {...props}
     >
       {children}

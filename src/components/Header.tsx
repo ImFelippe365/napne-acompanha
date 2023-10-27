@@ -31,7 +31,7 @@ const Header: React.FC = () => {
       <nav>
         <ul className="flex flex-row items-center gap-6">
           {paths.map(({ title, path }, index) => (
-            <Link to={path}>
+            <Link to={path} key={index}>
               <li
                 key={index}
                 className={`p-4 text-gray font-normal inset-0 relative hover:opacity-80 ${

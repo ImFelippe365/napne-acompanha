@@ -7,7 +7,7 @@ import { HiUsers } from "react-icons/hi2"
 import { IoLibrarySharp } from "react-icons/io5"
 
 const SettingsTabs: React.FC = () => {
-  const paths = [
+  const tabs = [
     {
       title: "Diários",
       path: "/",
@@ -37,20 +37,20 @@ const SettingsTabs: React.FC = () => {
   return (
     <div className="w-full flex flex-row items-center justify-between mt-4">
       <ul className="flex flex-row items-center gap-8">
-        {paths.map(({ title, icon, path, currentTab }, index) => (
-          <li
-            key={index}
-            className={`p-4 text-gray font-normal inset-0 relative hover:opacity-80 ${
-              currentTab === true
-                ? "text-primary !font-semibold border-b-2"
-                : "headerNavOption"
-            }`}
-          >
-            <Link to={path} className="flex flex-row items-center gap-2">
+        {tabs.map(({ title, icon, path, currentTab }, index) => (
+          <Link to={path}>
+            <li
+              key={index}
+              className={`p-4 flex flex-row items-center gap-2 text-gray font-normal inset-0 relative hover:opacity-80 
+                ${currentTab === true
+                  ? "text-primary !font-semibold border-b-2"
+                  : "headerNavOption"
+                }`}
+            >
               {icon}
               {title}
-            </Link>
-          </li>
+            </li>
+          </Link>
         ))}
       </ul>
     </div>
