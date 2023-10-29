@@ -4,10 +4,21 @@ import TCell from "../components/TCell";
 import Table from "../components/Table";
 import THeader from "../components/THeader";
 import Heading from "../components/Heading";
+import Modal from "../components/Modal";
+import { Input } from "../components/Input";
+import { Select } from "../components/Select";
 
 const Students: React.FC = () => {
   return (
     <>
+      <Modal
+        title="Cadastrar novo estudante"
+        description="Preencha os dados para gerar um novo diário"
+        onClose={() => {}}
+      >
+        <Input label="Nome" placeholder="Digite algo" />
+        <Select label="Bolsonaro" options={[{ label: "teste", value: "1" }]} />
+      </Modal>
       <Heading
         title="Lista de estudantes"
         description="Gerencie os estudantes com necessidades específicas"
@@ -25,7 +36,12 @@ const Students: React.FC = () => {
         </thead>
         <tbody>
           <TRow>
-            <TCell>Felippe Rian de Oliveira</TCell>
+            <TCell>
+              <div className="flex flex-row items-center gap-3">
+                <image href="" className="w-8 h-8 bg-black rounded-full" />
+                <span>Felippe Rian de Oliveira</span>
+              </div>
+            </TCell>
             <TCell>20211094040028</TCell>
             <TCell>20</TCell>
             <TCell>Análise e Desenvolvimento de Sistemas</TCell>

@@ -38,7 +38,7 @@ const SettingsTabs: React.FC = () => {
     <div className="w-full flex flex-row items-center justify-between mt-4">
       <ul className="flex flex-row items-center gap-8">
         {tabs.map(({ title, icon, path, currentTab }, index) => (
-          <Link to={path}>
+          <Link key={index} to={path}>
             <li
               key={index}
               className={`p-4 flex flex-row items-center gap-2 text-gray font-normal inset-0 relative hover:opacity-80 
