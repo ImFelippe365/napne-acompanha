@@ -4,7 +4,7 @@ import Button from "./Button";
 interface ModalProps {
   title: string;
   description?: string;
-  children: ReactNode;
+  children?: ReactNode;
   contentClassName?: string;
   onClose: () => void;
   onConfirm: () => void;
