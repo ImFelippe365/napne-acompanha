@@ -5,13 +5,26 @@ interface ModalProps {
   title: string;
   description?: string;
   children: ReactNode;
+  contentClassName?: string;
   onClose: () => void;
+  onConfirm: () => void;
 }
 
-const Modal = ({ title, description, children, onClose }: ModalProps) => {
+const Modal = ({
+  title,
+  description,
+  contentClassName,
+  children,
+  onClose,
+  onConfirm,
+}: ModalProps) => {
   return (
     <div className="absolute flex items-center justify-center inset-0 bg-background-black-transparent">
-      <div className="bg-white px-9 py-12 rounded-3xl min-w-[40%]">
+      <div
+        className={`bg-white px-9 py-12 rounded-3xl ${
+          contentClassName ? contentClassName : ""
+        }`}
+      >
         <header className="flex items-start flex-row justify-between mb-4">
           <section>
             <h4 className="text-black font-semibold text-2xl">{title}</h4>
@@ -27,8 +40,10 @@ const Modal = ({ title, description, children, onClose }: ModalProps) => {
         {children}
 
         <footer className="flex flex-row justify-end items-center gap-4 mt-8">
-          <Button color="error">Cancelar</Button>
-          <Button>Confirmar</Button>
+          <Button onClick={() => onClose()} color="error">
+            Cancelar
+          </Button>
+          <Button onClick={() => onConfirm()}>Confirmar</Button>
         </footer>
       </div>
     </div>

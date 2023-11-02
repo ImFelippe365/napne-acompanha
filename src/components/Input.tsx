@@ -1,5 +1,5 @@
 import React from "react";
-import { Control, Controller, FieldValues } from "react-hook-form";
+import { Control, Controller } from "react-hook-form";
 
 interface InputProps
   extends React.DetailedHTMLProps<
@@ -13,12 +13,12 @@ interface InputProps
 
 interface ControlledInputProps extends InputProps {
   name: string;
-  control: Control<FieldValues>;
+  control: Control<any>;
 }
 
 const Input = ({ label, error, helperText, ...props }: InputProps) => {
   return (
-    <>
+    <div>
       <label htmlFor={label} className="font-semibold text-black text-base">
         {label}
       </label>
@@ -30,11 +30,11 @@ const Input = ({ label, error, helperText, ...props }: InputProps) => {
         {...props}
       />
       {helperText && (
-        <p className={`text-xs ${error ? "text-error" : "text-gray"}`}>
+        <p className={`text-xs mt-1 ${error ? "text-error" : "text-gray"}`}>
           {helperText}
         </p>
       )}
-    </>
+    </div>
   );
 };
 
