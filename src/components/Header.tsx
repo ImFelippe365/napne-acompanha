@@ -9,19 +9,23 @@ const Header: React.FC = () => {
   const paths = [
     {
       title: "Visão geral",
+      pathParent: "/",
       path: "/",
     },
     {
       title: "Discentes",
+      pathParent: "/discentes",
       path: "/discentes",
     },
     {
       title: "Eventos",
+      pathParent: "/eventos",
       path: "/eventos",
     },
     {
       title: "Gestão acadêmica",
-      path: "/gestao-academica",
+      pathParent: "/gestao-academica",
+      path: "/gestao-academica/diarios",
     },
   ];
 
@@ -30,15 +34,14 @@ const Header: React.FC = () => {
       <span>Logo aqui</span>
       <nav>
         <ul className="flex flex-row items-center gap-6">
-          {paths.map(({ title, path }, index) => (
+          {paths.map(({ title, path, pathParent }, index) => (
             <Link to={path} key={index}>
               <li
                 key={index}
-                className={`p-4 text-gray font-normal inset-0 relative hover:opacity-80 ${
-                  currentPath === path
+                className={`p-4 text-gray font-normal inset-0 relative hover:opacity-80 ${currentPath === pathParent
                     ? "text-primary !font-semibold border-b-2"
                     : "headerNavOption"
-                }`}
+                  }`}
               >
                 {title}
               </li>

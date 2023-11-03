@@ -1,8 +1,10 @@
 import React from "react";
 import Heading from "../components/Heading";
 import SettingsTabs from "../components/SettingsTabs";
+import { Outlet } from "react-router-dom";
 
 const AcademicManagement: React.FC = () => {
+
   return (
     <>
       <Heading
@@ -10,6 +12,8 @@ const AcademicManagement: React.FC = () => {
       />
 
       <SettingsTabs />
+      
+      <Outlet />
     </>
   );
 };
