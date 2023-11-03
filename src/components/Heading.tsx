@@ -13,7 +13,7 @@ const Heading = ({ children, title, description, className }: HeadingProps) => {
       className={`flex flex-row items-center justify-between ${className}`}
     >
       <article className="self-start">
-        <h2 className="text-4xl text-black font-bold mb-1">{title}</h2>
+        <h2 className="text-3xl text-black font-bold mb-1">{title}</h2>
         <p className="text-gray text-base">{description}</p>
       </article>
 

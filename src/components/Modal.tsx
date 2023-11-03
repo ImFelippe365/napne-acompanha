@@ -21,7 +21,7 @@ const Modal = ({
   return (
     <div className="absolute flex items-center justify-center inset-0 bg-background-black-transparent">
       <div
-        className={`bg-white px-9 py-12 rounded-3xl ${
+        className={`bg-white px-9 py-10 rounded-3xl ${
           contentClassName ? contentClassName : ""
         }`}
       >

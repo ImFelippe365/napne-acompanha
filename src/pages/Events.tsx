@@ -47,7 +47,7 @@ const Events: React.FC = () => {
   const [enabledFields, setEnabledFields] = useState(true);
 
   const toggleCreateEventModal = () => {
-    reset();
+    reset({});
     setShowCreateEventModal((visible) => !visible);
 
     if (!enabledFields) setEnabledFields(true);

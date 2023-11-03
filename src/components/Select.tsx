@@ -18,7 +18,7 @@ interface SelectProps extends FRSelectProps {
 
 interface ControlledSelectProps extends SelectProps {
   name: string;
-  control: Control<FieldValues>;
+  control: Control<any>;
 }
 
 const Select = ({
@@ -29,7 +29,7 @@ const Select = ({
   ...props
 }: SelectProps) => {
   return (
-    <>
+    <div>
       <label htmlFor={label} className="font-semibold text-black text-base">
         {label}
       </label>
@@ -63,7 +63,7 @@ const Select = ({
           {helperText}
         </p>
       )}
-    </>
+    </div>
   );
 };
 
