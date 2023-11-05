@@ -76,7 +76,7 @@ const Students: React.FC = () => {
   };
 
   const handleViewStudent = () => {
-    navigate("/discentes/1");
+    navigate("/discentes/1/dados-pessoais");
   };
 
   const onSubmitStudent = (data: CreateStudentData) => {

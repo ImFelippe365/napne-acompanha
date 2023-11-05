@@ -45,7 +45,7 @@ export default {
       },
       gridTemplateColumns: {
         container: '280px auto',
-        profileContainer: '400px auto',
+        studentProfileContainer: 'auto 1fr',
         studentsListContainer: 'repeat(auto-fill, minmax(340px, 1fr))',
         classContainer: 'auto 400px',
         cardsGrid: 'repeat(auto-fill, minmax(224px, 1fr))'

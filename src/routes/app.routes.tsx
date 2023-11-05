@@ -6,9 +6,15 @@ import Students from "../pages/Students";
 import Events from "../pages/Events";
 import AcademicManagement from "../pages/AcademicManagement";
 import Diaries from "../pages/Diaries";
-import Courses from "../pages/Courses"
-import Classes from "../pages/Classes"
+import Courses from "../pages/Courses";
+import Classes from "../pages/Classes";
 import Disciplines from "../pages/Disciplines";
+import StudentProfile from "../pages/StudentProfile";
+import StudentGrades from "../pages/StudentGrades";
+import StudentEvents from "../pages/StudentEvents";
+import StudentNotes from "../pages/StudentNotes";
+import StudentPEI from "../pages/StudentPEI";
+import StudentDetails from "../pages/StudentDetails";
 
 // Routes for authenticated users
 const AppRoutes: React.FC = () => {
@@ -20,7 +26,13 @@ const AppRoutes: React.FC = () => {
           element={<span className="font-bold text-red-500">faça login </span>}
         />
         <Route path="discentes" element={<Students />} />
-        <Route path="discentes/:id" element={<div>perfil do discente</div>} />
+        <Route path="discentes/:id" element={<StudentProfile />}>
+          <Route path="dados-pessoais" element={<StudentDetails />} />
+          <Route path="boletins" element={<StudentGrades />} />
+          <Route path="eventos" element={<StudentEvents />} />
+          <Route path="anotacoes" element={<StudentNotes />} />
+          <Route path="pei" element={<StudentPEI />} />
+        </Route>
         <Route path="eventos" element={<Events />} />
         <Route path="gestao-academica" element={<AcademicManagement />}>
           <Route path="diarios" element={<Diaries />} />
