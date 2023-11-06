@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Heading from "../components/Heading";
 import Table from "../components/Table";
 import THeader from "../components/THeader";
@@ -7,74 +7,25 @@ import TCell from "../components/TCell";
 import TActions from "../components/TActions";
 import { Select } from "../components/Select";
 
-// import the core library.
 import ReactECharts from "echarts-for-react";
-import ReactEChartsCore from "echarts-for-react/lib/core";
-// Import the echarts core module, which provides the necessary interfaces for using echarts.
 import * as echarts from "echarts/core";
-// Import charts, all with Chart suffix
+import { BarChart } from "echarts/charts";
+
 import {
-  // LineChart,
-  BarChart,
-  // PieChart,
-  // ScatterChart,
-  // RadarChart,
-  // MapChart,
-  // TreeChart,
-  // TreemapChart,
-  // GraphChart,
-  // GaugeChart,
-  // FunnelChart,
-  // ParallelChart,
-  // SankeyChart,
-  // BoxplotChart,
-  // CandlestickChart,
-  // EffectScatterChart,
-  // LinesChart,
-  // HeatmapChart,
-  // PictorialBarChart,
-  // ThemeRiverChart,
-  // SunburstChart,
-  // CustomChart,
-} from "echarts/charts";
-// import components, all suffixed with Component
-import {
-  // GridSimpleComponent,
   GridComponent,
-  // PolarComponent,
-  // RadarComponent,
-  // GeoComponent,
-  // SingleAxisComponent,
-  // ParallelComponent,
-  // CalendarComponent,
-  // GraphicComponent,
-  // ToolboxComponent,
   TooltipComponent,
-  // AxisPointerComponent,
-  // BrushComponent,
   TitleComponent,
-  // TimelineComponent,
-  // MarkPointComponent,
-  // MarkLineComponent,
-  // MarkAreaComponent,
-  // LegendComponent,
-  // LegendScrollComponent,
-  // LegendPlainComponent,
-  // DataZoomComponent,
-  // DataZoomInsideComponent,
-  // DataZoomSliderComponent,
-  // VisualMapComponent,
-  // VisualMapContinuousComponent,
-  // VisualMapPiecewiseComponent,
-  // AriaComponent,
-  // TransformComponent,
-  DatasetComponent,
 } from "echarts/components";
-// Import renderer, note that introducing the CanvasRenderer or SVGRenderer is a required step
-import {
-  CanvasRenderer,
-  // SVGRenderer,
-} from "echarts/renderers";
+
+import { CanvasRenderer } from "echarts/renderers";
+
+import Button from "../components/Button";
+import { IoMdAdd } from "react-icons/io";
+import Modal from "../components/Modal";
+import { ControlledInput } from "../components/Input";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 
 echarts.use([
   TitleComponent,
@@ -84,7 +35,30 @@ echarts.use([
   CanvasRenderer,
 ]);
 
+interface GradeData {
+  score: number;
+  bimester: number;
+  disciplineId: string;
+  attributedBy: string;
+  studentId: string;
+  diaryId: string;
+}
+
 const StudentGrades: React.FC = () => {
+  const schema = yup.object().shape({
+    score: yup.number().required("Campo obrigatório"),
+    bimester: yup.number().required("Campo obrigatório"),
+    disciplineId: yup.string().required("Campo obrigatório"),
+    attributedBy: yup.string().required("Campo obrigatório"),
+    studentId: yup.string().required("Campo obrigatório"),
+    diaryId: yup.string().required("Campo obrigatório"),
+  });
+
+  const { control, handleSubmit } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  const [showAddGradeModal, setShowAddGradeModal] = useState(false);
   const handleEditGrade = () => {};
 
   const onChartClick = () => {
@@ -98,12 +72,65 @@ const StudentGrades: React.FC = () => {
     mouseover: showToltip,
   };
 
+  const toggleAddGrade = () => {
+    setShowAddGradeModal((visible) => !visible);
+  };
+
+  const onSubmitGrade = async (data: GradeData) => {
+    console.log("form", data);
+
+    return toggleAddGrade();
+  };
+
   return (
     <>
-      <Heading title="Boletim"></Heading>
+      {/* {showAddGradeModal && (
+        <Modal
+          title="Cadastrar novo evento"
+          description="Preencha os dados para gerar um novo evento"
+          onClose={() => toggleAddGrade()}
+          onConfirm={handleSubmit(onSubmitGrade)}
+          contentClassName="flex flex-col gap-4"
+        >
+          <ControlledInput
+            control={control}
+            name="score"
+            type="number"
+            label="Valor da nota"
+            maxLength={3}
+            placeholder="0 - 100"
+          />
+          
+          <ControlledInput
+            control={control}
+            name="score"
+            type="number"
+            label="Valor da nota"
+            maxLength={3}
+            placeholder="0 - 100"
+          />
+
+          <ControlledInput
+            control={control}
+            name="bimester"
+            type="number"
+            label="Valor da nota"
+            placeholder="Nome do evento"
+          />
+        </Modal>
+      )} */}
+      <Heading title="Boletim">
+        <Button
+          onClick={() => toggleAddGrade()}
+          className="flex flex-row items-center gap-2 py-2"
+        >
+          <IoMdAdd className="text-xl  text-white" />
+          <span>Adicionar nota</span>
+        </Button>
+      </Heading>
       <section className="flex flex-row items-center justify-between">
         <h2 className="text-lg font-semibold text-black">Notas do período</h2>
-        <Select label="" options={[]} />
+        <Select className="!bg-white" label="" options={[]} />
       </section>
 
       <Table className="mt-8">
@@ -136,7 +163,9 @@ const StudentGrades: React.FC = () => {
       </Table>
 
       <section className="flex flex-row items-center justify-between mt-4">
-        <h2 className="text-lg font-semibold text-black">Gráfico de evolução</h2>
+        <h2 className="text-lg font-semibold text-black">
+          Gráfico de evolução
+        </h2>
         <Select label="" options={[]} />
       </section>
 
@@ -160,9 +189,6 @@ const StudentGrades: React.FC = () => {
                 params.data[1].toFixed(2)
               );
             },
-          },
-          graphic: {
-
           },
           series: [
             {
