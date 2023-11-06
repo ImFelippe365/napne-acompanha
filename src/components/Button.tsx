@@ -8,12 +8,14 @@ interface ButtonProps
   children: React.ReactNode;
   color?: "success" | "error" | "base";
   className?: string;
+  loading?: boolean
 }
 
 const Button = ({
   children,
   className,
   color = "base",
+  loading,
   ...props
 }: ButtonProps) => {
   const colorClass =

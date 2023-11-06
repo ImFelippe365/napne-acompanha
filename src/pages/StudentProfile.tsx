@@ -59,7 +59,9 @@ const StudentProfile: React.FC = () => {
         ))}
       </aside>
 
-      <Outlet />
+      <div className="pl-8">
+        <Outlet />
+      </div>
     </section>
   );
 };
