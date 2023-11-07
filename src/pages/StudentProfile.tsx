@@ -37,8 +37,8 @@ const StudentProfile: React.FC = () => {
   const currentPath = `/discentes/${id}/${pathname?.split("/")[3]}`;
 
   return (
-    <section className="grid grid-cols-studentProfileContainer">
-      <aside className="h-screen overflow-y-hidden">
+    <section className="grid grid-cols-studentProfileContainer gap-24">
+      <aside className="min-[250px] overflow-y-hidden">
         <div className="w-[100px] h-[100px] bg-slate-500 rounded-full " />
         <article className="mt-2 mb-4">
           <h3 className="text-black font-bold text-xl">Xerolaine Xerox</h3>
@@ -59,7 +59,7 @@ const StudentProfile: React.FC = () => {
         ))}
       </aside>
 
-      <div className="pl-8">
+      <div>
         <Outlet />
       </div>
     </section>

@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
     "@lottiefiles/react-lottie-player": "^3.5.3",
+    "echarts": "^5.4.3",
     "echarts-for-react": "^3.0.2",
     "flowbite-react": "^0.6.4",
     "localforage": "^1.10.0",
