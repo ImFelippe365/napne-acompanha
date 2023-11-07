@@ -1,9 +1,9 @@
-import React from "react"
-import TCell from "../components/TCell"
-import THeader from "../components/THeader"
-import TRow from "../components/TRow"
-import Table from "../components/Table"
-import { FaTrash } from "react-icons/fa6"
+import React from "react";
+import TCell from "../components/TCell";
+import THeader from "../components/THeader";
+import TRow from "../components/TRow";
+import Table from "../components/Table";
+import TActions from "../components/TActions";
 
 const Disciplines: React.FC = () => {
   return (
@@ -27,7 +27,7 @@ const Disciplines: React.FC = () => {
             <TCell>6º</TCell>
             <TCell>Não</TCell>
             <TCell className={"text-primary"}>
-              <FaTrash className={"cursor-pointer"} size={24} />
+              <TActions />
             </TCell>
           </TRow>
           <TRow>
@@ -37,13 +37,13 @@ const Disciplines: React.FC = () => {
             <TCell>-</TCell>
             <TCell>SIm</TCell>
             <TCell className={"text-primary"}>
-              <FaTrash className={"cursor-pointer"} size={24} />
+              <TActions />
             </TCell>
           </TRow>
         </tbody>
       </Table>
     </>
-  )
-}
+  );
+};
 
-export default Disciplines
+export default Disciplines;

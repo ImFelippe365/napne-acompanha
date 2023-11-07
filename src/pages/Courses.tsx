@@ -3,8 +3,7 @@ import TCell from "../components/TCell"
 import THeader from "../components/THeader"
 import TRow from "../components/TRow"
 import Table from "../components/Table"
-import { FaTrash } from "react-icons/fa6"
-import { MdModeEdit } from "react-icons/md"
+import TActions from "../components/TActions"
 
 const Courses: React.FC = () => {
   return (
@@ -26,10 +25,7 @@ const Courses: React.FC = () => {
             <TCell>Ensino superior</TCell>
             <TCell>7</TCell>
             <TCell className={"text-primary"}>
-              <div className="flex gap-4">
-                <FaTrash className={"cursor-pointer"} size={24} />
-                <MdModeEdit className={"cursor-pointer"} size={24} />
-              </div>
+              <TActions />
             </TCell>
           </TRow>
           <TRow>
@@ -38,10 +34,7 @@ const Courses: React.FC = () => {
             <TCell>Ensino superior</TCell>
             <TCell>7</TCell>
             <TCell className={"text-primary"}>
-              <div className="flex gap-4">
-                <FaTrash className={"cursor-pointer"} size={24} />
-                <MdModeEdit className={"cursor-pointer"} size={24} />
-              </div>
+              <TActions />
             </TCell>
           </TRow>
         </tbody>
