@@ -41,7 +41,7 @@ const StudentProfile: React.FC = () => {
       <aside className="min-[250px] overflow-y-hidden">
         <div className="w-[100px] h-[100px] bg-slate-500 rounded-full " />
         <article className="mt-2 mb-4">
-          <h3 className="text-black font-bold text-xl">Xerolaine Xerox</h3>
+          <h3 className="text-black font-bold text-xl">Bruna Maria</h3>
           <p className="text-gray">19 anos</p>
         </article>
 

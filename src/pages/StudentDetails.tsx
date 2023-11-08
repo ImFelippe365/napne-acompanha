@@ -9,7 +9,7 @@ const StudentDetails: React.FC = () => {
       <section className="flex flex-col gap-4 mt-4">
         <article>
           <label className="font-normal text-gray">Nome</label>
-          <p className="font-semibold text-black">Xerolaine Xerox</p>
+          <p className="font-semibold text-black">Bruna Maria</p>
         </article>
         <article>
           <label className="font-normal text-gray">Data de nascimento</label>

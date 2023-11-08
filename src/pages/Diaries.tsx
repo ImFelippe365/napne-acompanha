@@ -4,10 +4,21 @@ import THeader from "../components/THeader";
 import TRow from "../components/TRow";
 import Table from "../components/Table";
 import TActions from "../components/TActions";
+import Button from "../components/Button";
+import { IoMdAdd } from "react-icons/io";
 
 const Diaries: React.FC = () => {
   return (
     <>
+      <section className="my-3 flex flex-row justify-end">
+        <Button
+          onClick={() => {}}
+          className="flex flex-row items-center gap-2 py-3"
+        >
+          <IoMdAdd className="text-xl  text-white" />
+          <span>Adicionar novo diário</span>
+        </Button>
+      </section>
       <Table className="mt-8">
         <thead>
           <TRow>
