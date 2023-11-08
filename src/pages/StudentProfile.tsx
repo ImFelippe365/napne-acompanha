@@ -25,11 +25,11 @@ const StudentProfile: React.FC = () => {
       path: "/discentes/1/anotacoes",
       icon: <BiSolidPencil className="text-lg" />,
     },
-    {
-      title: "Plano Educacional (PEI)",
-      path: "/discentes/1/pei",
-      icon: <IoSchool className="text-lg" />,
-    },
+    // {
+    //   title: "Plano Educacional (PEI)",
+    //   path: "/discentes/1/pei",
+    //   icon: <IoSchool className="text-lg" />,
+    // },
   ];
 
   const { pathname } = useLocation();

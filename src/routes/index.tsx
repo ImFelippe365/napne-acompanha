@@ -6,7 +6,7 @@ import AuthRoutes from "./auth.routes";
 // import { Container } from './styles';
 
 const Routes: React.FC = () => {
-  const isAuthenticated = false;
+  const isAuthenticated = true;
 
   return (
     <BrowserRouter>

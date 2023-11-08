@@ -128,9 +128,16 @@ const StudentGrades: React.FC = () => {
           <span>Adicionar nota</span>
         </Button>
       </Heading>
-      <section className="flex flex-row items-center justify-between">
+      <section className="flex flex-row items-center justify-between mt-4">
         <h2 className="text-lg font-semibold text-black">Notas do período</h2>
-        <Select className="!bg-white" label="" options={[]} />
+        <Select
+          className="w-56"
+          label=""
+          options={[
+            { label: "2020.1", value: "1" },
+            { label: "2021.1", value: "2" },
+          ]}
+        />
       </section>
 
       <Table className="mt-8">
@@ -166,7 +173,14 @@ const StudentGrades: React.FC = () => {
         <h2 className="text-lg font-semibold text-black">
           Gráfico de evolução
         </h2>
-        <Select label="" options={[]} />
+        <Select
+          className="w-56"
+          label=""
+          options={[
+            { label: "2020.1", value: "1" },
+            { label: "2021.1", value: "2" },
+          ]}
+        />
       </section>
 
       <ReactECharts
