@@ -9,6 +9,7 @@ interface InputProps
   label: string;
   error?: boolean;
   helperText?: string;
+  containerClassName?: string;
 }
 
 interface ControlledInputProps extends InputProps {
@@ -16,9 +17,9 @@ interface ControlledInputProps extends InputProps {
   control: Control<any>;
 }
 
-const Input = ({ label, error, helperText, ...props }: InputProps) => {
+const Input = ({ label, error, helperText, containerClassName, ...props }: InputProps) => {
   return (
-    <div>
+    <div className={containerClassName}>
       <label htmlFor={label} className="font-semibold text-black text-base">
         {label}
       </label>

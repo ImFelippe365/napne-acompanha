@@ -5,7 +5,7 @@ function App() {
   return (
     <>
       <Header />
-      <main className="py-8">
+      <main className="py-8 max-w-[80%]">
         <Outlet />
       </main>
     </>

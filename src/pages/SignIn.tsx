@@ -5,7 +5,7 @@ import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import { ControlledInput } from "../components/Input";
-
+import loginAnimation from "./../assets/lottie-files/login-animation.json"
 interface SignInData {
   registration: string;
   password: string;
@@ -21,7 +21,6 @@ export const SignIn = () => {
     control,
     handleSubmit,
     setError,
-    formState: { isSubmitting },
   } = useForm<SignInData>({
     resolver: yupResolver(signInSchema),
   });
@@ -40,30 +39,29 @@ export const SignIn = () => {
   };
 
   return (
-    <div className="grid grid-cols-2 ">
-      <section className="m-auto">
+    <main className="grid grid-cols-2 bg-background-color">
+      <section className="m-auto mt-12">
         <Player
           autoplay
           controls={false}
           loop
           speed={0.5}
-          src={"static/lottie-files/login-animation.json"}
-          style={{ height: "80%", width: "80%" }}
+          src={loginAnimation}
+          style={{ height: "60%", width: "60%" }}
         />
-        <article className="max-w-xl text-center m-auto mt-4">
+        <article className="max-w-xl text-center m-auto">
           <h1 className="text-black text-lg leading-6">
-            <span className="font-bold">Class Planner - </span>Gerenciador de
-            horários de aula
+            <span className="font-bold">NAPNE Acompanha</span>
           </h1>
           <p className="mt-2 text-gray ">
             A autenticação é feita por meio do SUAP. Por mais que a matrícula
             esteja ativa, apenas o público com permissão poderá acessar o
-            sistema, ou seja, apenas para funcionários da COADES/COAPAC e
+            sistema, ou seja, apenas para funcionários do NAPNE e
             professores.
           </p>
         </article>
       </section>
-      <section className="w-full bg-background-color flex flex-col h-[100vh] justify-center items-center">
+      <section className="w-full bg-white flex flex-col h-[100vh] justify-center items-center">
         <form className="max-w-md m-auto p-4" onSubmit={handleSubmit(onSubmit)}>
           <h2 className="text-2xl text-black font-bold">Entre com sua conta</h2>
           <p className="text-base text-gray mb-4">
@@ -81,6 +79,7 @@ export const SignIn = () => {
             name="password"
             control={control}
             label="Senha"
+            containerClassName="mt-2"
             placeholder="Digite sua senha"
             type="password"
           />
@@ -94,7 +93,7 @@ export const SignIn = () => {
           </Button>
         </form>
       </section>
-    </div>
+    </main>
   );
 };
 
