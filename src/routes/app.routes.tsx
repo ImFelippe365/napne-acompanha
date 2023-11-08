@@ -15,6 +15,7 @@ import StudentEvents from "../pages/StudentEvents";
 import StudentNotes from "../pages/StudentNotes";
 import StudentPEI from "../pages/StudentPEI";
 import StudentDetails from "../pages/StudentDetails";
+import Overview from "../pages/Overview";
 
 // Routes for authenticated users
 const AppRoutes: React.FC = () => {
@@ -22,8 +23,8 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<App />}>
         <Route
-          path="login"
-          element={<span className="font-bold text-red-500">faça login </span>}
+          path="/"
+          element={<Overview />}
         />
         <Route path="discentes" element={<Students />} />
         <Route path="discentes/:id" element={<StudentProfile />}>

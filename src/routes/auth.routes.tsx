@@ -1,5 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
+import SignIn from "../pages/SignIn";
 
 // import { Container } from './styles';
 
@@ -7,7 +8,7 @@ import { Route, Routes } from "react-router-dom";
 const AuthRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<div>nao autenticado</div>} />
+      <Route path="/entrar" element={<SignIn />} />
     </Routes>
   );
 };
