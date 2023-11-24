@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import TCell from "../components/TCell";
 import THeader from "../components/THeader";
 import TRow from "../components/TRow";
@@ -6,13 +6,124 @@ import Table from "../components/Table";
 import TActions from "../components/TActions";
 import Button from "../components/Button";
 import { IoMdAdd } from "react-icons/io";
+import Modal from "../components/Modal";
+import { ControlledInput } from "../components/Input";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+interface DiaryData {
+  id: string;
+  referencePeriod: number;
+  referenceYear: number;
+  startDate: string;
+  endDate: string;
+}
+
+interface CreateDiaryData {
+  referencePeriod: number;
+  referenceYear: number;
+  startDate: string;
+  endDate: string;
+}
 
 const Diaries: React.FC = () => {
+  const schema = yup.object().shape({
+    referencePeriod: yup.number().required("Campo obrigatório"),
+    referenceYear: yup.number().required("Campo obrigatório").min(2000, "Adicione um ano válido"),
+    startDate: yup.string().required("Campo obrigatório"),
+    endDate: yup.string().required("Campo obrigatório")
+  });
+
+  const { control, handleSubmit, reset } = useForm({
+    resolver: yupResolver(schema)
+  });
+
+  const [showCreateDiaryModal, setShowCreateDiaryModal] = useState(false);
+  const [showDeleteDiaryModal, setShowDeleteDiaryModal] = useState(false);
+
+  const [diaryToRemove, setDiaryToRemove] = useState("");
+
+  const toggleCreateDiaryModal = () => {
+    reset({});
+    setShowCreateDiaryModal((visible) => !visible);
+  };
+
+  const toggleDeleteDiaryModal = () =>
+    setShowDeleteDiaryModal((visible) => !visible);
+
+  const handleDeleteDiary = (diaryId: string) => {
+    setDiaryToRemove(diaryId);
+    toggleDeleteDiaryModal();
+  };
+
+  const onSubmitDiary = async (data: CreateDiaryData) => {
+    console.log("data", data);
+    toggleCreateDiaryModal();
+  };
+
+  const onDeleteDiary = async () => {
+    console.log("Remover diário", diaryToRemove)
+    toggleDeleteDiaryModal();
+  };
+
   return (
     <>
+      {showDeleteDiaryModal && (
+        <Modal
+          title="Tem certeza?"
+          description="Deseja excluir este diário permanentemente?"
+          onClose={() => toggleDeleteDiaryModal()}
+          onConfirm={() => onDeleteDiary()}
+        />
+      )}
+
+      {showCreateDiaryModal && (
+        <Modal
+          title="Criar novo diário"
+          description="Preencha os dados para gerar um novo diário"
+          onClose={() => toggleCreateDiaryModal()}
+          onConfirm={handleSubmit(onSubmitDiary)}
+          contentClassName="flex flex-col gap-3"
+        >
+          <ControlledInput
+            control={control}
+            name="referenceYear"
+            type="number"
+            label="Ano letivo"
+            placeholder="Ano em que ocorre as aulas"
+          />
+          <ControlledInput
+            control={control}
+            name="referencePeriod"
+            type="number"
+            label="Período letivo"
+            placeholder="Período correspondente ao semestre do ano"
+          />
+
+          <section className="flex flex-row items-center gap-6">
+            <ControlledInput
+              control={control}
+              name="startDate"
+              type="date"
+              label="Data de início"
+              placeholder="Digite"
+            />
+
+            <ControlledInput
+              control={control}
+              name="endDate"
+              type="date"
+              label="Data de fim"
+              placeholder="Digite"
+            />
+          </section>
+        </Modal>
+      )}
+
       <section className="my-3 flex flex-row justify-end">
         <Button
-          onClick={() => {}}
+          onClick={() => toggleCreateDiaryModal()}
           className="flex flex-row items-center gap-2 py-3"
         >
           <IoMdAdd className="text-xl  text-white" />
@@ -34,15 +145,11 @@ const Diaries: React.FC = () => {
             <TCell>1 de abril de 2023</TCell>
             <TCell>30 de agosto de 2023</TCell>
             <TCell className={"text-primary"}>
-              <TActions />
-            </TCell>
-          </TRow>
-          <TRow>
-            <TCell contrast>2023.1</TCell>
-            <TCell>1 de abril de 2023</TCell>
-            <TCell>30 de agosto de 2023</TCell>
-            <TCell className={"text-primary"}>
-              <TActions />
+              <TActions
+                showList={false}
+                showEdit={false}
+                onRemoveClick={() => handleDeleteDiary("1")}
+              />
             </TCell>
           </TRow>
         </tbody>
