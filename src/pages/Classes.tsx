@@ -88,6 +88,7 @@ const Classes: React.FC = () => {
           description="Preencha todos os dados para criar uma nova turma"
           onClose={() => toggleCreateClassModal()}
           onConfirm={() => handleSubmit(onSubmitClass)}
+          contentClassName="flex flex-col gap-3"
         >
           <ControlledSelect
             control={control}

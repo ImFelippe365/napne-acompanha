@@ -6,7 +6,7 @@ import {
 
 interface OptionProps {
   label: string;
-  value: string | number;
+  value: string | number | boolean;
 }
 
 interface SelectProps extends FRSelectProps {
