@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Checkbox } from "../../../components/Checkbox";
 import { useState } from "react";
-import { StudentData } from "../../../interfaces/Students";
+import { StudentData } from "../../../interfaces/Student";
 
 interface LinkStudentToEventFormModalProps {
   setOpenModal: () => void;

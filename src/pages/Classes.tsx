@@ -12,21 +12,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Modal from "../components/Modal";
 import { ControlledSelect } from "../components/Select";
-
-interface ClassData {
-  id: string;
-  referencePeriod: number;
-  shift: string;
-  courseId: string;
-  diaryId: string;
-}
-
-interface CreateClassData {
-  referencePeriod: number;
-  shift: string;
-  courseId: string;
-  diaryId: string;
-}
+import { ClassData, CreateClassData } from "../interfaces/Class";
 
 const Classes: React.FC = () => {
   const schema = yup.object().shape({

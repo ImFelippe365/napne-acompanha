@@ -12,23 +12,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Modal from "../components/Modal";
 import { ControlledInput } from "../components/Input";
 import { ControlledSelect } from "../components/Select";
-
-interface DisciplineData {
-  id: string;
-  name: string;
-  referencePeriod: number;
-  code: string;
-  isOptative: boolean;
-  courseId: string;
-}
-
-interface CreateDisciplineData {
-  name: string;
-  referencePeriod: number;
-  code: string;
-  isOptative: boolean;
-  courseId: string;
-}
+import { CreateDisciplineData, DisciplineData } from "../interfaces/Discipline";
 
 const Disciplines: React.FC = () => {
   const schema = yup.object().shape({

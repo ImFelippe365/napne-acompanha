@@ -14,7 +14,7 @@ import Button from "../components/Button";
 import { IoMdAdd } from "react-icons/io";
 import TActions from "../components/TActions";
 import { useNavigate } from "react-router-dom";
-import { CreateStudentData, StudentData } from "../interfaces/Students";
+import { CreateStudentData, StudentData } from "../interfaces/Student";
 
 const Students: React.FC = () => {
   const schema = yup.object().shape({

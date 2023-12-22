@@ -11,21 +11,7 @@ import { ControlledInput } from "../components/Input";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-
-interface DiaryData {
-  id: string;
-  referencePeriod: number;
-  referenceYear: number;
-  startDate: string;
-  endDate: string;
-}
-
-interface CreateDiaryData {
-  referencePeriod: number;
-  referenceYear: number;
-  startDate: string;
-  endDate: string;
-}
+import { CreateDiaryData } from "../interfaces/Diary";
 
 const Diaries: React.FC = () => {
   const schema = yup.object().shape({

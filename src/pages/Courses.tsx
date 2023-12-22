@@ -12,21 +12,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import Modal from "../components/Modal"
 import { ControlledInput } from "../components/Input"
 import { ControlledSelect } from "../components/Select"
-
-interface CourseData {
-  id: string;
-  name: string;
-  byname: string;
-  periodsQuantity: number;
-  degree: string;
-}
-
-interface CreateCourseData {
-  name: string;
-  byname: string;
-  periodsQuantity: number;
-  degree: string;
-}
+import { CourseData, CreateCourseData } from "../interfaces/Course"
 
 const Courses: React.FC = () => {
   const schema = yup.object().shape({
