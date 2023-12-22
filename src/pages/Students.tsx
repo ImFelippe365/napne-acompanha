@@ -14,25 +14,7 @@ import Button from "../components/Button";
 import { IoMdAdd } from "react-icons/io";
 import TActions from "../components/TActions";
 import { useNavigate } from "react-router-dom";
-
-interface StudentData {
-  id: string;
-  name: string;
-  registration: string;
-  dateOfBirth: string;
-  picture: string | undefined;
-  classId: string;
-  course?: string | undefined;
-  shift?: string | undefined;
-}
-
-interface CreateStudentData {
-  name: string;
-  registration: string;
-  dateOfBirth: string;
-  picture?: string | undefined;
-  classId: string;
-}
+import { CreateStudentData, StudentData } from "../interfaces/Students";
 
 const Students: React.FC = () => {
   const schema = yup.object().shape({

@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 
 import App from "../App";
 import Students from "../pages/Students";
-import Events from "../pages/Events";
+import Events from "../pages/Events/Events";
 import AcademicManagement from "../pages/AcademicManagement";
 import Diaries from "../pages/Diaries";
 import Courses from "../pages/Courses";
