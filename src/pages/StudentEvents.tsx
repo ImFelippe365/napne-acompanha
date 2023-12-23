@@ -15,6 +15,7 @@ import { IoMdAdd } from "react-icons/io";
 import { ControlledSelect } from "../components/Select";
 
 interface CreateStudentParticipation {
+  studentId: string;
   eventId: string;
 }
 
@@ -38,6 +39,14 @@ const StudentEvents: React.FC = () => {
 
   const [eventParticipationToRemove, setEventParticipationToRemove] =
     useState("");
+
+  const getAllEvents = () => {
+    // Request to get all events
+  }
+
+  const getEventParticipates = () => {
+    // Eventos participados
+  }
 
   const toggleCreateEventModal = () => {
     reset({});
