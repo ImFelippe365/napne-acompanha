@@ -2,24 +2,28 @@ import axios from "axios";
 
 export const api = axios.create({
   baseURL: "http://localhost:8000/",
+  headers: {
+    // "Access-Control-Allow-Origin": "*",
+    // "aplication/json"
+  },
 });
 
-// api.interceptors.request.use(
-// 	async (config) => {
-// 		const token = localStorage.getItem("@napneAcompanha:token");
-// 		const refresh = localStorage.getItem("@napneAcompanha:refresh");
-		
-// 		if (token) config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(
+	async (config) => {
+		const token = localStorage.getItem("@NapneAcompanha:token");
 
-// 		return config;
-// 	},
-// 	(error) => {
-// 		return Promise.reject(error);
-// 	}
-// );
+		if (token) config.headers.Authorization = `Bearer ${token}`;
+
+		return config;
+	},
+	(error) => {
+    if (error.status === 401) localStorage.clear()
+		return Promise.reject(error);
+	}
+);
 
 api.interceptors.response.use(
-	(response) => response,
+  (response) => response,
 
-	(error) => Promise.reject(error || "Something went wrong")
+  (error) => Promise.reject(error || "Something went wrong")
 );

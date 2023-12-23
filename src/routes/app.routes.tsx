@@ -16,16 +16,14 @@ import StudentNotes from "../pages/StudentNotes";
 import StudentPEI from "../pages/StudentPEI";
 import StudentDetails from "../pages/StudentDetails";
 import Overview from "../pages/Overview";
+import PageNotFound from "../pages/PageNotFound";
 
 // Routes for authenticated users
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<App />}>
-        <Route
-          path="/"
-          element={<Overview />}
-        />
+        <Route path="/" element={<Overview />} />
         <Route path="discentes" element={<Students />} />
         <Route path="discentes/:id" element={<StudentProfile />}>
           <Route path="dados-pessoais" element={<StudentDetails />} />
@@ -42,6 +40,8 @@ const AppRoutes: React.FC = () => {
           <Route path="disciplinas" element={<Disciplines />} />
         </Route>
       </Route>
+
+      <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };

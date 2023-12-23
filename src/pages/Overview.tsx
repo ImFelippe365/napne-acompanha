@@ -1,7 +1,9 @@
 import React from "react";
 import Heading from "../components/Heading";
+import { useAuth } from "../hooks/AuthContext";
 
 const Overview: React.FC = () => {
+  const { user } = useAuth();
   const today = new Date();
   const todayTime = today.getHours();
 
@@ -11,7 +13,7 @@ const Overview: React.FC = () => {
   return (
     <>
       <Heading
-        title={`${grettingsMessage}, Felippe!`}
+        title={`${grettingsMessage}, ${user?.name}!`}
         description="Veja as estatísticas do sistema"
       />
 

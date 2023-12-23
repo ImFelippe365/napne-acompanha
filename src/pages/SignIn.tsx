@@ -5,7 +5,8 @@ import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import { ControlledInput } from "../components/Input";
-import loginAnimation from "./../assets/lottie-files/login-animation.json"
+import loginAnimation from "./../assets/lottie-files/login-animation.json";
+import { useAuth } from "../hooks/AuthContext";
 interface SignInData {
   registration: string;
   password: string;
@@ -21,17 +22,23 @@ export const SignIn = () => {
     control,
     handleSubmit,
     setError,
+    formState: { isSubmitting },
   } = useForm<SignInData>({
     resolver: yupResolver(signInSchema),
   });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const onSubmit = async (data: SignInData) => {
     try {
-      console.log(data)
-      
-      navigate("/visao-geral");
+      const response = await login(data);
+      if (!response) {
+        setError("password", { message: "Senha e/ou matrícula incorreta(s)" });
+        return;
+      }
+
+      navigate("/");
     } catch (err) {
       console.log(err);
       setError("password", { message: "Matrícula ou senha incorreto(s)" });
@@ -56,8 +63,7 @@ export const SignIn = () => {
           <p className="mt-2 text-gray ">
             A autenticação é feita por meio do SUAP. Por mais que a matrícula
             esteja ativa, apenas o público com permissão poderá acessar o
-            sistema, ou seja, apenas para funcionários do NAPNE e
-            professores.
+            sistema, ou seja, apenas para funcionários do NAPNE e professores.
           </p>
         </article>
       </section>
@@ -84,11 +90,7 @@ export const SignIn = () => {
             type="password"
           />
 
-          <Button
-            // isProcessing={isSubmitting}
-            className="w-full mt-6"
-            type="submit"
-          >
+          <Button loading={isSubmitting} className="w-full mt-6" type="submit">
             Entrar
           </Button>
         </form>
