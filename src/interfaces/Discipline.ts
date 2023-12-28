@@ -1,3 +1,5 @@
+import { CourseData } from "./Course";
+
 export interface DisciplineData {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface DisciplineData {
   code: string;
   isOptative: boolean;
   courseId: string;
+  course: CourseData;
 }
 
 export interface CreateDisciplineData {

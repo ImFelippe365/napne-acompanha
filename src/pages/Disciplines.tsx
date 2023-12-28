@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TCell from "../components/TCell";
 import THeader from "../components/THeader";
 import TRow from "../components/TRow";
@@ -13,6 +13,7 @@ import Modal from "../components/Modal";
 import { ControlledInput } from "../components/Input";
 import { ControlledSelect } from "../components/Select";
 import { CreateDisciplineData, DisciplineData } from "../interfaces/Discipline";
+import { api } from "../services/api";
 
 const Disciplines: React.FC = () => {
   const schema = yup.object().shape({
@@ -27,17 +28,24 @@ const Disciplines: React.FC = () => {
     resolver: yupResolver(schema),
   })
 
+  const [disciplines, setDisciplines] = useState<DisciplineData[]>([]);
+
   const [showCreateDisciplineModal, setShowCreateDisciplineModal] = useState(false);
   const [showDeleteDisciplineModal, setShowDeleteDisciplineModal] = useState(false);
 
   const [disciplineToRemove, setDisciplineToRemove] = useState("");
+
+  const getAllDisciplines = async () => {
+    const { data } = await api.get('napne/academic/disciplines/all')
+    setDisciplines(data)
+  };
 
   const toggleCreateDisciplineModal = () => {
     reset({});
     setShowCreateDisciplineModal((visible) => !visible);
   };
 
-  const toggleDeleteDisciplineModal = () => 
+  const toggleDeleteDisciplineModal = () =>
     setShowDeleteDisciplineModal((visible) => !visible);
 
   const handleEditDiscipline = (discipline: DisciplineData) => {
@@ -59,6 +67,10 @@ const Disciplines: React.FC = () => {
     console.log("disciplina para remover", disciplineToRemove);
     toggleDeleteDisciplineModal();
   };
+
+  useEffect(() => {
+    getAllDisciplines()
+  }, [])
 
   return (
     <>
@@ -92,7 +104,7 @@ const Disciplines: React.FC = () => {
             label="Código"
             placeholder="Digite o código da disciplina"
           />
-          <ControlledSelect 
+          <ControlledSelect
             control={control}
             name="isOptative"
             label="Tipo"
@@ -160,29 +172,31 @@ const Disciplines: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          <TRow>
-            <TCell>TEC.0023</TCell>
-            <TCell contrast>Sistemas corporativos</TCell>
-            <TCell>Análise e Desenvolvimento de Sistemas</TCell>
-            <TCell>6º</TCell>
-            <TCell>Não</TCell>
-            <TCell className={"text-primary"}>
-              <TActions
-                showList={false}
-                onEditClick={() => 
-                  handleEditDiscipline({
-                    id: "1",
-                    name: "Sistemas operacionais",
-                    code: "TEC.12233",
-                    courseId: "1",
-                    referencePeriod: 3,
-                    isOptative: true
-                  })
-                }
-                onRemoveClick={() => handleDeleteDiscipline("1")}
-              />
-            </TCell>
-          </TRow>
+          {disciplines.map(({ id, name, referencePeriod, code, isOptative, courseId, course }) => (
+            <TRow key={id}>
+              <TCell>{code}</TCell>
+              <TCell contrast>{name}</TCell>
+              <TCell>{course.name}</TCell>
+              <TCell>{referencePeriod}º</TCell>
+              <TCell>{isOptative ? "Sim" : "Não"}</TCell>
+              <TCell className={"text-primary"}>
+                <TActions
+                  showList={false}
+                  onEditClick={() =>
+                    handleEditDiscipline({
+                      id: id,
+                      name: name,
+                      code: code,
+                      courseId: courseId,
+                      referencePeriod: referencePeriod,
+                      isOptative: isOptative
+                    })
+                  }
+                  onRemoveClick={() => handleDeleteDiscipline(id)}
+                />
+              </TCell>
+            </TRow>
+          ))}
         </tbody>
       </Table>
     </>

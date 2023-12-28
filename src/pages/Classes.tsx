@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TCell from "../components/TCell";
 import THeader from "../components/THeader";
 import TRow from "../components/TRow";
@@ -13,6 +13,7 @@ import * as yup from "yup";
 import Modal from "../components/Modal";
 import { ControlledSelect } from "../components/Select";
 import { ClassData, CreateClassData } from "../interfaces/Class";
+import { api } from "../services/api";
 
 const Classes: React.FC = () => {
   const schema = yup.object().shape({
@@ -26,10 +27,17 @@ const Classes: React.FC = () => {
     resolver: yupResolver(schema),
   });
 
+  const [classes, setClasses] = useState<ClassData[]>([]);
+
   const [showCreateClassModal, setShowCreateClassModal] = useState(false);
   const [showDeleteClassModal, setShowDeleteClassModal] = useState(false);
 
   const [classToRemove, setClassToRemove] = useState("");
+
+  const getAllClasses = async () => {
+    const { data } = await api.get('napne/academic/classes/all');
+    setClasses(data);
+  }
 
   const toggleCreateClassModal = () => {
     reset({});
@@ -58,6 +66,11 @@ const Classes: React.FC = () => {
     console.log("turma para remover", classToRemove);
     toggleDeleteClassModal();
   };
+
+  useEffect(() => {
+    getAllClasses();
+  }, [])
+
   return (
     <>
       {showDeleteClassModal && (
@@ -160,26 +173,28 @@ const Classes: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          <TRow>
-            <TCell contrast>ADS6V</TCell>
-            <TCell>Análise e Desenvolvimento de Sistemas</TCell>
-            <TCell>Vespertino</TCell>
-            <TCell>2023.1</TCell>
-            <TCell>7</TCell>
-            <TCell className={"text-primary"}>
-              <TActions
-                showList={false}
-                onEditClick={() => handleEditClass({
-                  id: "1",
-                  referencePeriod: 2,
-                  shift: "Manhã",
-                  diaryId: "1",
-                  courseId: "1"
-                })}
-                onRemoveClick={() => handleDeleteClass("1")}
-              />
-            </TCell>
-          </TRow>
+          {classes.map(({ id, referencePeriod, shift }) => (
+            <TRow key={id}>
+              <TCell contrast>ADS6V</TCell>
+              <TCell>Análise e Desenvolvimento de Sistemas</TCell>
+              <TCell>{shift === "morning" ? "Manhã" : shift === "Tarde" ? "Vespertino" : "Noite"}</TCell>
+              <TCell>2023.1</TCell>
+              <TCell>{referencePeriod}</TCell>
+              <TCell className={"text-primary"}>
+                <TActions
+                  showList={false}
+                  onEditClick={() => handleEditClass({
+                    id: id,
+                    referencePeriod: referencePeriod,
+                    shift: `${shift === "morning" ? "Manhã" : shift === "Tarde" ? "Vespertino" : "Noite"}`,
+                    diaryId: "1",
+                    courseId: "1"
+                  })}
+                  onRemoveClick={() => handleDeleteClass(id)}
+                />
+              </TCell>
+            </TRow>
+          ))}
         </tbody>
       </Table>
     </>

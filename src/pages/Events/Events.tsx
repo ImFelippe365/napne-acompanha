@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Heading from "../../components/Heading";
 import Table from "../../components/Table";
 import THeader from "../../components/THeader";
@@ -13,21 +13,10 @@ import { ControlledInput } from "../../components/Input";
 import { IoMdAdd } from "react-icons/io";
 import TActions from "../../components/TActions";
 import LinkStudentToEventFormModal from "./components/LinkStudentToEventFormModal";
+import { api } from "../../services/api";
+import { CreateEventData, EventData } from "../../interfaces/Event";
+import { formatDatetime, formatDatetimeToInput } from "../../utils/formatDatetime";
 
-interface EventData {
-  id: string;
-  title: string;
-  description: string;
-  startTime: string;
-  endTime: string;
-}
-
-interface CreateEventData {
-  title: string;
-  description: string;
-  startTime: string;
-  endTime: string;
-}
 
 const Events: React.FC = () => {
   const schema = yup.object().shape({
@@ -41,6 +30,8 @@ const Events: React.FC = () => {
     resolver: yupResolver(schema),
   });
 
+  const [events, setEvents] = useState<EventData[]>([]);
+
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [showDeleteEventModal, setShowDeleteEventModal] = useState(false);
   const [showBindStudentModal, setShowBindStudentModal] = useState(false);
@@ -49,6 +40,11 @@ const Events: React.FC = () => {
   const [enabledFields, setEnabledFields] = useState(true);
 
   const [eventToBind, setEventToBind] = useState("");
+
+  const getAllEvents = async () => {
+    const { data } = await api.get("napne/academic/events/all")
+    setEvents(data)
+  };
 
   const toggleCreateEventModal = () => {
     reset({});
@@ -97,6 +93,10 @@ const Events: React.FC = () => {
     console.log("Remover este evento", eventToRemove);
     toggleDeleteEventModal();
   };
+
+  useEffect(() => {
+    getAllEvents()
+  }, [])
 
   return (
     <>
@@ -157,7 +157,7 @@ const Events: React.FC = () => {
       )}
 
       {showBindStudentModal && (
-        <LinkStudentToEventFormModal 
+        <LinkStudentToEventFormModal
           eventToBind={eventToBind}
           setOpenModal={toggleBindStudentModal}
         />
@@ -183,44 +183,44 @@ const Events: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          <TRow>
-            <TCell contrast>Abertura do NADIC</TCell>
-            <TCell>13 de março de 2023 às 16:20</TCell>
-            <TCell>13 de março de 2023 às 18:00</TCell>
-            <TCell className="w-1/3 pr-6">
-              Evento de abertura do NADIC do ano letivo de 2023 e apresentação
-              para os novatos do campus para se interessarem e ingressarem em
-              projetos.
-            </TCell>
-            <TCell>
-              <TActions
-                showBindStudent
-                onBindClick={() => {
-                  setEventToBind("1")
-                  toggleBindStudentModal()
-                }}
-                onListClick={() =>
-                  handleViewEvent({
-                    id: "1",
-                    title: "example",
-                    description: "example desc",
-                    startTime: "2017-06-01T08:30",
-                    endTime: "2017-06-02T10:30",
-                  })
-                }
-                onEditClick={() =>
-                  handleEditEvent({
-                    id: "1",
-                    title: "example",
-                    description: "example desc",
-                    startTime: "2017-06-01T08:30",
-                    endTime: "2017-06-02T10:30",
-                  })
-                }
-                onRemoveClick={() => handleDeleteEvent("1")}
-              />
-            </TCell>
-          </TRow>
+          {events.map(({ id, title, description, startTime, endTime }) => (
+            <TRow key={id}>
+              <TCell contrast>{title}</TCell>
+              <TCell>{formatDatetime(startTime, true)}</TCell>
+              <TCell>{formatDatetime(endTime, true)}</TCell>
+              <TCell className="w-1/3 pr-6">
+                {description}
+              </TCell>
+              <TCell>
+                <TActions
+                  showBindStudent
+                  onBindClick={() => {
+                    setEventToBind(id)
+                    toggleBindStudentModal()
+                  }}
+                  onListClick={() =>
+                    handleViewEvent({
+                      id: id,
+                      title: title,
+                      description: description,
+                      startTime: formatDatetimeToInput(startTime),
+                      endTime: formatDatetimeToInput(endTime),
+                    })
+                  }
+                  onEditClick={() =>
+                    handleEditEvent({
+                      id: id,
+                      title: title,
+                      description: description,
+                      startTime: formatDatetimeToInput(startTime),
+                      endTime: formatDatetimeToInput(endTime),
+                    })
+                  }
+                  onRemoveClick={() => handleDeleteEvent(id)}
+                />
+              </TCell>
+            </TRow>
+          ))}
         </tbody>
       </Table>
     </>

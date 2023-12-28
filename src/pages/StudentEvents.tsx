@@ -13,6 +13,7 @@ import Heading from "../components/Heading";
 import Button from "../components/Button";
 import { IoMdAdd } from "react-icons/io";
 import { ControlledSelect } from "../components/Select";
+import { api } from "../services/api";
 
 interface CreateStudentParticipation {
   studentId: string;
@@ -42,6 +43,8 @@ const StudentEvents: React.FC = () => {
 
   const getAllEvents = () => {
     // Request to get all events
+    const {data} = api.get("academic/events/all")
+
   }
 
   const getEventParticipates = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import TCell from "../components/TCell"
 import THeader from "../components/THeader"
 import TRow from "../components/TRow"
@@ -13,6 +13,7 @@ import Modal from "../components/Modal"
 import { ControlledInput } from "../components/Input"
 import { ControlledSelect } from "../components/Select"
 import { CourseData, CreateCourseData } from "../interfaces/Course"
+import { api } from "../services/api"
 
 const Courses: React.FC = () => {
   const schema = yup.object().shape({
@@ -26,11 +27,18 @@ const Courses: React.FC = () => {
     resolver: yupResolver(schema)
   })
 
+  const [courses, setCourses] = useState<CourseData[]>([]);
+
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [showDeleteCourseModal, setShowDeleteCourseModal] = useState(false);
 
   const [courseToRemove, setCourseToRemove] = useState("");
   const [enabledFields, setEnabledFields] = useState(true);
+
+  const getAllCourses = async () => {
+    const { data } = await api.get('napne/academic/courses/all');
+    setCourses(data);
+  };
 
   const toggleCreateCourseModal = () => {
     reset({});
@@ -60,6 +68,10 @@ const Courses: React.FC = () => {
     console.log("Remover este evento", courseToRemove);
     toggleDeleteCourseModal();
   };
+
+  useEffect(() => {
+    getAllCourses();
+  }, [])
 
   return (
     <>
@@ -141,27 +153,29 @@ const Courses: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          <TRow>
-            <TCell contrast>Análise e Desenvolvimento de Sistemas</TCell>
-            <TCell>ADS</TCell>
-            <TCell>Ensino superior</TCell>
-            <TCell>7</TCell>
-            <TCell className={"text-primary"}>
-              <TActions
-                showList={false}
-                onEditClick={() =>
-                  handleEditCourse({
-                    id: "1",
-                    name: "Informática",
-                    byname: "Info",
-                    degree: "Ensino técnico",
-                    periodsQuantity: 4,
-                  })
-                }
-                onRemoveClick={() => handleDeleteCourse("1")}
-              />
-            </TCell>
-          </TRow>
+          {courses.map(({ id, name, degree, byname, periodsQuantity }) => (
+            <TRow key={id}>
+              <TCell contrast>{name}</TCell>
+              <TCell>{byname}</TCell>
+              <TCell>{degree}</TCell>
+              <TCell>{periodsQuantity}</TCell>
+              <TCell className={"text-primary"}>
+                <TActions
+                  showList={false}
+                  onEditClick={() =>
+                    handleEditCourse({
+                      id: id,
+                      name: name,
+                      byname: byname,
+                      degree: degree,
+                      periodsQuantity: periodsQuantity,
+                    })
+                  }
+                  onRemoveClick={() => handleDeleteCourse(id)}
+                />
+              </TCell>
+            </TRow>
+          ))}
         </tbody>
       </Table>
     </>
