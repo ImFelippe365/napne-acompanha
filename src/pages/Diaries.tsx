@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TCell from "../components/TCell";
 import THeader from "../components/THeader";
 import TRow from "../components/TRow";
@@ -11,7 +11,9 @@ import { ControlledInput } from "../components/Input";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { CreateDiaryData } from "../interfaces/Diary";
+import { CreateDiaryData, DiaryData } from "../interfaces/Diary";
+import { api } from "../services/api";
+import { formatDatetime } from "../utils/formatDatetime";
 
 const Diaries: React.FC = () => {
   const schema = yup.object().shape({
@@ -25,10 +27,17 @@ const Diaries: React.FC = () => {
     resolver: yupResolver(schema)
   });
 
+  const [diaries, setDiaries] = useState<DiaryData[]>([]);
+
   const [showCreateDiaryModal, setShowCreateDiaryModal] = useState(false);
   const [showDeleteDiaryModal, setShowDeleteDiaryModal] = useState(false);
 
   const [diaryToRemove, setDiaryToRemove] = useState("");
+
+  const getAllDiaries = async () => {
+    const { data } = await api.get('napne/academic/diaries/all');
+    setDiaries(data);
+  }
 
   const toggleCreateDiaryModal = () => {
     reset({});
@@ -52,6 +61,10 @@ const Diaries: React.FC = () => {
     console.log("Remover diário", diaryToRemove)
     toggleDeleteDiaryModal();
   };
+
+  useEffect(() => {
+    getAllDiaries();
+  }, [])
 
   return (
     <>
@@ -126,18 +139,20 @@ const Diaries: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          <TRow>
-            <TCell contrast>2023.1</TCell>
-            <TCell>1 de abril de 2023</TCell>
-            <TCell>30 de agosto de 2023</TCell>
-            <TCell className={"text-primary"}>
-              <TActions
-                showList={false}
-                showEdit={false}
-                onRemoveClick={() => handleDeleteDiary("1")}
-              />
-            </TCell>
-          </TRow>
+          {diaries.map(({ id, referenceYear, referencePeriod, startDate, endDate }) => (
+            <TRow key={id}>
+              <TCell contrast>{referenceYear}.{referencePeriod}</TCell>
+              <TCell>{formatDatetime(startDate)}</TCell>
+              <TCell>{formatDatetime(endDate)}</TCell>
+              <TCell className={"text-primary"}>
+                <TActions
+                  showList={false}
+                  showEdit={false}
+                  onRemoveClick={() => handleDeleteDiary(id)}
+                />
+              </TCell>
+            </TRow>
+          ))}
         </tbody>
       </Table>
     </>

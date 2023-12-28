@@ -28,6 +28,7 @@ const Classes: React.FC = () => {
   });
 
   const [classes, setClasses] = useState<ClassData[]>([]);
+  const [diaries, setDiaries] = useState<ClassData[]>([]);
 
   const [showCreateClassModal, setShowCreateClassModal] = useState(false);
   const [showDeleteClassModal, setShowDeleteClassModal] = useState(false);
@@ -37,6 +38,11 @@ const Classes: React.FC = () => {
   const getAllClasses = async () => {
     const { data } = await api.get('napne/academic/classes/all');
     setClasses(data);
+  }
+
+  const getAllDiaries = async () => {
+    const { data } = await api.get('napne/academic/diaries/all');
+    setDiaries(data);
   }
 
   const toggleCreateClassModal = () => {
@@ -173,11 +179,11 @@ const Classes: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          {classes.map(({ id, referencePeriod, shift }) => (
+          {classes.map(({ id, referencePeriod, shift, courseId, course, diaryId }) => (
             <TRow key={id}>
-              <TCell contrast>ADS6V</TCell>
-              <TCell>Análise e Desenvolvimento de Sistemas</TCell>
-              <TCell>{shift === "morning" ? "Manhã" : shift === "Tarde" ? "Vespertino" : "Noite"}</TCell>
+              <TCell contrast>{course.byname}{referencePeriod}{shift === "morning" ? "M" : shift === "Tarde" ? "V" : "N"}</TCell>
+              <TCell>{course.name}</TCell>
+              <TCell>{shift === "morning" ? "Manhã" : shift === "Tarde" ? "Tarde" : "Noite"}</TCell>
               <TCell>2023.1</TCell>
               <TCell>{referencePeriod}</TCell>
               <TCell className={"text-primary"}>
@@ -186,9 +192,9 @@ const Classes: React.FC = () => {
                   onEditClick={() => handleEditClass({
                     id: id,
                     referencePeriod: referencePeriod,
-                    shift: `${shift === "morning" ? "Manhã" : shift === "Tarde" ? "Vespertino" : "Noite"}`,
-                    diaryId: "1",
-                    courseId: "1"
+                    shift: `${shift === "morning" ? "Manhã" : shift === "afternoon" ? "Tarde" : "Noite"}`,
+                    diaryId: diaryId,
+                    courseId: courseId
                   })}
                   onRemoveClick={() => handleDeleteClass(id)}
                 />
