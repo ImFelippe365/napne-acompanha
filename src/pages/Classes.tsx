@@ -183,7 +183,7 @@ const Classes: React.FC = () => {
             <TRow key={id}>
               <TCell contrast>{course.byname}{referencePeriod}{shift === "morning" ? "M" : shift === "Tarde" ? "V" : "N"}</TCell>
               <TCell>{course.name}</TCell>
-              <TCell>{shift === "morning" ? "Manhã" : shift === "Tarde" ? "Tarde" : "Noite"}</TCell>
+              <TCell>{shift === "morning" ? "Manhã" : shift === "afternoon" ? "Tarde" : "Noite"}</TCell>
               <TCell>2023.1</TCell>
               <TCell>{referencePeriod}</TCell>
               <TCell className={"text-primary"}>

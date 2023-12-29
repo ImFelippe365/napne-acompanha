@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TRow from "../components/TRow";
 import TCell from "../components/TCell";
 import Table from "../components/Table";
@@ -15,6 +15,8 @@ import { IoMdAdd } from "react-icons/io";
 import TActions from "../components/TActions";
 import { useNavigate } from "react-router-dom";
 import { CreateStudentData, StudentData } from "../interfaces/Student";
+import { api } from "../services/api";
+import { formatForBrazilDateStandard } from "../utils/formatDatetime";
 
 const Students: React.FC = () => {
   const schema = yup.object().shape({
@@ -33,10 +35,21 @@ const Students: React.FC = () => {
 
   const navigate = useNavigate();
 
+  const [students, setStudents] = useState<StudentData[]>([]);
+
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
   const [showDeleteStudentModal, setShowDeleteStudentModal] = useState(false);
 
   const [studentToRemove, setStudentToRemove] = useState("");
+
+  const getAllStudents = async () => {
+    const { data } = await api.get('napne/student/students/all')
+    setStudents(data);
+  }
+
+  const getAllClasses = async () => {
+
+  }
 
   const toggleCreateStudentModal = () => {
     reset({});
@@ -57,8 +70,8 @@ const Students: React.FC = () => {
     toggleDeleteStudentModal();
   };
 
-  const handleViewStudent = () => {
-    navigate("/discentes/1/dados-pessoais");
+  const handleViewStudent = (studentId: string) => {
+    navigate(`/discentes/${studentId}/dados-pessoais`);
   };
 
   const onSubmitStudent = (data: CreateStudentData) => {
@@ -70,6 +83,10 @@ const Students: React.FC = () => {
     console.log("estudante para remover", studentToRemove);
     toggleDeleteStudentModal();
   };
+
+  useEffect(() => {
+    getAllStudents();
+  }, [])
 
   return (
     <>
@@ -189,37 +206,39 @@ const Students: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          <TRow>
-            <TCell>
-              <div className="flex flex-row items-center gap-3">
-                <image href="" className="w-8 h-8 bg-black rounded-full" />
-                <span>Felippe Rian de Oliveira</span>
-              </div>
-            </TCell>
-            <TCell>20211094040028</TCell>
-            <TCell>20</TCell>
-            <TCell>Análise e Desenvolvimento de Sistemas</TCell>
-            <TCell>7 período</TCell>
-            <TCell>
-              <TActions
-                onListClick={() => handleViewStudent()}
-                onEditClick={() =>
-                  handleEditStudent({
-                    id: "1",
-                    name: "felps",
-                    classId: "1",
-                    dateOfBirth: "03/06/2003",
-                    picture: "",
-                    course: "1",
-                    shift: "1",
+          {students.map(({ id, name, shift, registration, course, classId, dateOfBirth, picture }) => (
+            <TRow key={id}>
+              <TCell>
+                <div className="flex flex-row items-center gap-3">
+                  <image href="" className="w-8 h-8 bg-black rounded-full" />
+                  <span>{name}</span>
+                </div>
+              </TCell>
+              <TCell>{registration}</TCell>
+              <TCell>20</TCell>
+              <TCell>Análise e Desenvolvimento de Sistemas</TCell>
+              <TCell>7 período</TCell>
+              <TCell>
+                <TActions
+                  onListClick={() => handleViewStudent(id)}
+                  onEditClick={() =>
+                    handleEditStudent({
+                      id: id,
+                      name: name,
+                      classId: classId,
+                      dateOfBirth: formatForBrazilDateStandard(dateOfBirth),
+                      picture: "",
+                      course: "1",
+                      shift: `${shift === "morning" ? "Manhã" : shift === "afternoon" ? "Tarde" : "Noite"}`,
 
-                    registration: "20211094040028",
-                  })
-                }
-                onRemoveClick={() => handleDeleteStudent("1")}
-              />
-            </TCell>
-          </TRow>
+                      registration: registration,
+                    })
+                  }
+                  onRemoveClick={() => handleDeleteStudent(id)}
+                />
+              </TCell>
+            </TRow>
+          ))}
         </tbody>
       </Table>
     </>
