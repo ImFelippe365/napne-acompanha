@@ -13,14 +13,20 @@ const StudentDetails: React.FC = () => {
 
   const getStudent = async () => {
     const { data } = await api.get(`napne/student/students/${id}/details`)
+
+    const { data: schoolClass } = await api.get(`napne/academic/classes/${data.classId}/details`)
+    // setClasses(allClasses)
+    data.schoolClass = schoolClass
+    
     setStudent(data)
+
   }
 
   useEffect(() => {
     getStudent();
   }, [])
 
-  return (
+  return (  
     <>
       <Heading title="Dados do aluno" />
 
@@ -39,11 +45,11 @@ const StudentDetails: React.FC = () => {
         </article>
         <article>
           <label className="font-normal text-gray">Curso</label>
-          <p className="font-semibold text-black">Análise e Desenvolvimento de Sistemas</p>
+          <p className="font-semibold text-black">{student?.schoolClass?.course.name}</p>
         </article>
         <article>
           <label className="font-normal text-gray">Turma</label>
-          <p className="font-semibold text-black">ADS 6° período</p>
+          <p className="font-semibold text-black">{student?.schoolClass?.course.byname} {student?.schoolClass?.referencePeriod}° período</p>
         </article>
       </section>
     </>

@@ -23,9 +23,7 @@ export const formatForBrazilDateStandard = (datetime?: string) => {
     const month = teste.slice(5, 7)
     const day = teste.slice(8, 10)
     const formattedDate = `${day}/${month}/${year}`
+
     return formattedDate
-    console.log(teste, year)
-    // const formatedDatetime = format(datetime, "dd'/'MM'/'yyyy", { locale: ptBR });
-    // return formatedDatetime;
   }
 };

@@ -1,12 +1,14 @@
+import { ClassData } from "./Class";
+
 export interface StudentData {
   id: string;
   name: string;
   registration: string;
-  dateOfBirth: string;
+  dateOfBirth?: string;
   picture: string | undefined;
   classId: string;
-  course?: string | undefined;
-  shift?: string | undefined;
+  schoolClass: ClassData;
+  shift: string | undefined;
 }
 
 export interface CreateStudentData {

@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { CreateStudentData, StudentData } from "../interfaces/Student";
 import { api } from "../services/api";
 import { formatForBrazilDateStandard } from "../utils/formatDatetime";
+import { ClassData } from "../interfaces/Class";
 
 const Students: React.FC = () => {
   const schema = yup.object().shape({
@@ -36,19 +37,26 @@ const Students: React.FC = () => {
   const navigate = useNavigate();
 
   const [students, setStudents] = useState<StudentData[]>([]);
+  const [classes, setClasses] = useState<ClassData[]>([]);
 
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
   const [showDeleteStudentModal, setShowDeleteStudentModal] = useState(false);
 
-  const [studentToRemove, setStudentToRemove] = useState("");
+  const [studentToRemove, setStudentToRemove] = useState("");''
 
   const getAllStudents = async () => {
     const { data } = await api.get('napne/student/students/all')
+    
+    const { data: allClasses } = await api.get(`napne/academic/classes/all`)
+    setClasses(allClasses)
+    
+    data.forEach((student: StudentData) => {
+      const matchingClass = allClasses.find((schoolClass: ClassData) => schoolClass.id === student.classId)
+      if (matchingClass) {
+        student.schoolClass = matchingClass;
+      }
+    })
     setStudents(data);
-  }
-
-  const getAllClasses = async () => {
-
   }
 
   const toggleCreateStudentModal = () => {
@@ -206,7 +214,7 @@ const Students: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          {students.map(({ id, name, shift, registration, course, classId, dateOfBirth, picture }) => (
+          {students.map(({ id, name, shift, registration, schoolClass, classId, dateOfBirth, picture }) => (
             <TRow key={id}>
               <TCell>
                 <div className="flex flex-row items-center gap-3">
@@ -216,8 +224,8 @@ const Students: React.FC = () => {
               </TCell>
               <TCell>{registration}</TCell>
               <TCell>20</TCell>
-              <TCell>Análise e Desenvolvimento de Sistemas</TCell>
-              <TCell>7 período</TCell>
+              <TCell>{schoolClass?.course.name}</TCell>
+              <TCell>{schoolClass?.referencePeriod} período</TCell>
               <TCell>
                 <TActions
                   onListClick={() => handleViewStudent(id)}
@@ -227,11 +235,10 @@ const Students: React.FC = () => {
                       name: name,
                       classId: classId,
                       dateOfBirth: formatForBrazilDateStandard(dateOfBirth),
-                      picture: "",
-                      course: "1",
+                      picture: picture,
                       shift: `${shift === "morning" ? "Manhã" : shift === "afternoon" ? "Tarde" : "Noite"}`,
-
                       registration: registration,
+                      schoolClass: schoolClass,
                     })
                   }
                   onRemoveClick={() => handleDeleteStudent(id)}
