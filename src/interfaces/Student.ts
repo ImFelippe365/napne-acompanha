@@ -1,4 +1,5 @@
 import { ClassData } from "./Class";
+import { Grade } from "./Grade";
 
 export interface StudentData {
   id: string;
@@ -17,4 +18,24 @@ export interface CreateStudentData {
   dateOfBirth: string;
   picture?: string | undefined;
   classId: string;
+}
+
+export interface StudentGrade {
+  id: string;
+  name: string;
+  referencePeriod: number;
+  code: string;
+  isOptative: boolean;
+  courseId: string;
+  course: null;
+  grades: Grade[];
+}
+
+export interface StudentNote {
+  id: string;
+  title: string;
+  description: string;
+  studentId: string;
+  createdBy: string;
+  createdAt: string;
 }

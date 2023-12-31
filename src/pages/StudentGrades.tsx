@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Heading from "../components/Heading";
 import Table from "../components/Table";
 import THeader from "../components/THeader";
@@ -26,6 +26,9 @@ import { ControlledInput } from "../components/Input";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import { DiaryData } from "../interfaces/Diary";
+import { api } from "../services/api";
+import { useStudent } from "../hooks/StudentContext";
 
 echarts.use([
   TitleComponent,
@@ -58,6 +61,30 @@ const StudentGrades: React.FC = () => {
     resolver: yupResolver(schema),
   });
 
+  const {
+    student,
+    grades,
+    selectedDiaryToGrades,
+    setSelectedDiaryToGrades,
+    selectedDiaryToGraph,
+    setSelectedDiaryToGraph,
+  } = useStudent();
+
+  const [diaries, setDiaries] = useState<DiaryData[]>([]);
+
+  const getAllDiaries = async () => {
+    const response = await api.get(
+      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/all`
+    );
+
+    setDiaries(response?.data ?? []);
+  };
+
+  const diariesOptionsSelect = diaries.map((diary) => ({
+    label: `${diary.referenceYear}.${diary.referencePeriod}`,
+    value: diary.id,
+  }));
+
   const [showAddGradeModal, setShowAddGradeModal] = useState(false);
   const handleEditGrade = () => {};
 
@@ -81,6 +108,10 @@ const StudentGrades: React.FC = () => {
 
     return toggleAddGrade();
   };
+
+  useEffect(() => {
+    getAllDiaries();
+  }, []);
 
   return (
     <>
@@ -133,10 +164,9 @@ const StudentGrades: React.FC = () => {
         <Select
           className="w-56"
           label=""
-          options={[
-            { label: "2020.1", value: "1" },
-            { label: "2021.1", value: "2" },
-          ]}
+          options={diariesOptionsSelect}
+          value={selectedDiaryToGrades}
+          onChange={(diary) => setSelectedDiaryToGrades(diary.target.value)}
         />
       </section>
 
@@ -152,20 +182,22 @@ const StudentGrades: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          <TRow>
-            <TCell contrast>Desenvolvimento de Sistemas</TCell>
-            <TCell>100</TCell>
-            <TCell>80</TCell>
-            <TCell>32</TCell>
-            <TCell>90</TCell>
-            <TCell>
-              <TActions
-                showList={false}
-                showRemove={false}
-                onEditClick={() => handleEditGrade()}
-              />
-            </TCell>
-          </TRow>
+          {grades.map((disciplineGrades) => (
+            <TRow key={disciplineGrades.id}>
+              <TCell contrast>{disciplineGrades.name}</TCell>
+              {disciplineGrades.grades.map((grade) => (
+                <TCell key={grade.gradeId}>{grade.score}</TCell>
+              ))}
+
+              <TCell>
+                <TActions
+                  showList={false}
+                  showRemove={false}
+                  onEditClick={() => handleEditGrade()}
+                />
+              </TCell>
+            </TRow>
+          ))}
         </tbody>
       </Table>
 
@@ -176,10 +208,9 @@ const StudentGrades: React.FC = () => {
         <Select
           className="w-56"
           label=""
-          options={[
-            { label: "2020.1", value: "1" },
-            { label: "2021.1", value: "2" },
-          ]}
+          options={diariesOptionsSelect}
+          value={selectedDiaryToGraph}
+          onChange={(diary) => setSelectedDiaryToGraph(diary.target.value)}
         />
       </section>
 

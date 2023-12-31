@@ -2,28 +2,31 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
 import { BiSolidUser, BiSolidPencil } from "react-icons/bi";
 import { IoDocumentText, IoSchool, IoCalendarNumber } from "react-icons/io5";
-import { api } from "../services/api";
-import { StudentData } from "../interfaces/Student";
-import { formatForBrazilDateStandard } from "../utils/formatDatetime";
-import { differenceInYears } from "date-fns";
 import { calculeAge } from "../utils/calculeAge";
+import { useStudent } from "../hooks/StudentContext";
 
 const StudentProfile: React.FC = () => {
   const { pathname } = useLocation();
   const { id } = useParams();
   const currentPath = `/discentes/${id}/${pathname?.split("/")[3]}`;
 
-  const [student, setStudent] = useState<StudentData>();
+  const {
+    student,
+    getStudentDetails,
 
-  const getStudent = async () => {
-    const { data } = await api.get(`napne/student/students/${id}/details`)
-    setStudent(data)
-  }
+    getStudentNotes,
+    getStudentGrades,
+    getStudentEventParticipations,
+  } = useStudent();
 
   useEffect(() => {
-    getStudent();
-  }, [])
-  
+    getStudentDetails(id ?? "");
+
+    getStudentNotes();
+    getStudentGrades();
+    getStudentEventParticipations();
+  }, []);
+
   const menu = [
     {
       title: "Dados do aluno",
@@ -50,8 +53,7 @@ const StudentProfile: React.FC = () => {
     //   path: "/discentes/1/pei",
     //   icon: <IoSchool className="text-lg" />,
     // },
-  ]; 
-
+  ];
 
   return (
     <section className="grid grid-cols-studentProfileContainer gap-24">

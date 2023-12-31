@@ -1,32 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Heading from "../components/Heading";
-import { StudentData } from "../interfaces/Student";
-import { api } from "../services/api";
-import { useParams } from "react-router-dom";
 import { formatForBrazilDateStandard } from "../utils/formatDatetime";
+import { useStudent } from "../hooks/StudentContext";
 
 const StudentDetails: React.FC = () => {
+  const { student } = useStudent();
 
-  const { id } = useParams()
-
-  const [student, setStudent] = useState<StudentData>();
-
-  const getStudent = async () => {
-    const { data } = await api.get(`napne/student/students/${id}/details`)
-
-    const { data: schoolClass } = await api.get(`napne/academic/classes/${data.classId}/details`)
-    // setClasses(allClasses)
-    data.schoolClass = schoolClass
-    
-    setStudent(data)
-
-  }
-
-  useEffect(() => {
-    getStudent();
-  }, [])
-
-  return (  
+  return (
     <>
       <Heading title="Dados do aluno" />
 
@@ -37,7 +17,9 @@ const StudentDetails: React.FC = () => {
         </article>
         <article>
           <label className="font-normal text-gray">Data de nascimento</label>
-          <p className="font-semibold text-black">{formatForBrazilDateStandard(student?.dateOfBirth)}</p>
+          <p className="font-semibold text-black">
+            {formatForBrazilDateStandard(student?.dateOfBirth)}
+          </p>
         </article>
         <article>
           <label className="font-normal text-gray">Matrícula</label>
@@ -45,11 +27,16 @@ const StudentDetails: React.FC = () => {
         </article>
         <article>
           <label className="font-normal text-gray">Curso</label>
-          <p className="font-semibold text-black">{student?.schoolClass?.course.name}</p>
+          <p className="font-semibold text-black">
+            {student?.schoolClass?.course.name}
+          </p>
         </article>
         <article>
           <label className="font-normal text-gray">Turma</label>
-          <p className="font-semibold text-black">{student?.schoolClass?.course.byname} {student?.schoolClass?.referencePeriod}° período</p>
+          <p className="font-semibold text-black">
+            {student?.schoolClass?.course.byname}{" "}
+            {student?.schoolClass?.referencePeriod}° período
+          </p>
         </article>
       </section>
     </>

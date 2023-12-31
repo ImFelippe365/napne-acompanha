@@ -198,7 +198,7 @@ const Students: React.FC = () => {
 
       <Heading
         title="Lista de estudantes"
-        description="Gerencie os estudantes com necessidades específicas"
+        description="Gerencie os estudantes cadastrados no sistema"
       >
         <Button
           onClick={() => toggleCreateStudentModal()}
