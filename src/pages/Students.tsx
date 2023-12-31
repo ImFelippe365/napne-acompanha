@@ -82,8 +82,9 @@ const Students: React.FC = () => {
     navigate(`/discentes/${studentId}/dados-pessoais`);
   };
 
-  const onSubmitStudent = (data: CreateStudentData) => {
+  const onSubmitStudent = async (data: CreateStudentData) => {
     console.log("result", data);
+    // const response = await api.post('napne/student/students/create', data)
     toggleCreateStudentModal();
   };
 
