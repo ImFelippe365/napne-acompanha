@@ -14,6 +14,7 @@ import { ControlledInput } from "../components/Input"
 import { ControlledSelect } from "../components/Select"
 import { CourseData, CreateCourseData } from "../interfaces/Course"
 import { api } from "../services/api"
+import axios from "axios"
 
 const Courses: React.FC = () => {
   const schema = yup.object().shape({
@@ -23,7 +24,12 @@ const Courses: React.FC = () => {
     degree: yup.string().required("Campo obrigatório"),
   })
 
-  const { control, handleSubmit, reset } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitted }
+  } = useForm({
     resolver: yupResolver(schema)
   })
 
@@ -60,8 +66,25 @@ const Courses: React.FC = () => {
   };
 
   const onSubmitCourse = async (data: CreateCourseData) => {
-    console.log("Formulário: ", data);
-    toggleCreateCourseModal();
+    console.log(data)
+    const apiTest = axios.create({
+      baseURL: "http://localhost:8001/",
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        // "aplication/json"
+      },
+    });
+    try {
+      const response = await api.post('/napne/academic/courses/create', data)
+      
+      if (isSubmitted){
+        toggleCreateCourseModal();
+        reset({});
+        getAllCourses();
+      }
+    } catch (err){
+      console.log("Erro inesperado");
+    }
   };
 
   const onDeleteCourse = async () => {
