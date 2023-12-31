@@ -42,22 +42,28 @@ const Students: React.FC = () => {
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
   const [showDeleteStudentModal, setShowDeleteStudentModal] = useState(false);
 
-  const [studentToRemove, setStudentToRemove] = useState("");''
+  const [studentToRemove, setStudentToRemove] = useState("");
 
   const getAllStudents = async () => {
-    const { data } = await api.get('napne/student/students/all')
-    
-    const { data: allClasses } = await api.get(`napne/academic/classes/all`)
-    setClasses(allClasses)
-    
+    const { data } = await api.get(
+      `${process.env.VITE_MS_STUDENT_URL}/students/all`
+    );
+
+    const { data: allClasses } = await api.get(
+      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/classes/all`
+    );
+    setClasses(allClasses);
+
     data.forEach((student: StudentData) => {
-      const matchingClass = allClasses.find((schoolClass: ClassData) => schoolClass.id === student.classId)
+      const matchingClass = allClasses.find(
+        (schoolClass: ClassData) => schoolClass.id === student.classId
+      );
       if (matchingClass) {
         student.schoolClass = matchingClass;
       }
-    })
+    });
     setStudents(data);
-  }
+  };
 
   const toggleCreateStudentModal = () => {
     reset({});
@@ -94,7 +100,7 @@ const Students: React.FC = () => {
 
   useEffect(() => {
     getAllStudents();
-  }, [])
+  }, []);
 
   return (
     <>
@@ -214,38 +220,55 @@ const Students: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          {students.map(({ id, name, shift, registration, schoolClass, classId, dateOfBirth, picture }) => (
-            <TRow key={id}>
-              <TCell>
-                <div className="flex flex-row items-center gap-3">
-                  <image href="" className="w-8 h-8 bg-black rounded-full" />
-                  <span>{name}</span>
-                </div>
-              </TCell>
-              <TCell>{registration}</TCell>
-              <TCell>20</TCell>
-              <TCell>{schoolClass?.course.name}</TCell>
-              <TCell>{schoolClass?.referencePeriod} período</TCell>
-              <TCell>
-                <TActions
-                  onListClick={() => handleViewStudent(id)}
-                  onEditClick={() =>
-                    handleEditStudent({
-                      id: id,
-                      name: name,
-                      classId: classId,
-                      dateOfBirth: formatForBrazilDateStandard(dateOfBirth),
-                      picture: picture,
-                      shift: `${shift === "morning" ? "Manhã" : shift === "afternoon" ? "Tarde" : "Noite"}`,
-                      registration: registration,
-                      schoolClass: schoolClass,
-                    })
-                  }
-                  onRemoveClick={() => handleDeleteStudent(id)}
-                />
-              </TCell>
-            </TRow>
-          ))}
+          {students.map(
+            ({
+              id,
+              name,
+              shift,
+              registration,
+              schoolClass,
+              classId,
+              dateOfBirth,
+              picture,
+            }) => (
+              <TRow key={id}>
+                <TCell>
+                  <div className="flex flex-row items-center gap-3">
+                    <image href="" className="w-8 h-8 bg-black rounded-full" />
+                    <span>{name}</span>
+                  </div>
+                </TCell>
+                <TCell>{registration}</TCell>
+                <TCell>20</TCell>
+                <TCell>{schoolClass?.course.name}</TCell>
+                <TCell>{schoolClass?.referencePeriod} período</TCell>
+                <TCell>
+                  <TActions
+                    onListClick={() => handleViewStudent(id)}
+                    onEditClick={() =>
+                      handleEditStudent({
+                        id: id,
+                        name: name,
+                        classId: classId,
+                        dateOfBirth: formatForBrazilDateStandard(dateOfBirth),
+                        picture: picture,
+                        shift: `${
+                          shift === "morning"
+                            ? "Manhã"
+                            : shift === "afternoon"
+                            ? "Tarde"
+                            : "Noite"
+                        }`,
+                        registration: registration,
+                        schoolClass: schoolClass,
+                      })
+                    }
+                    onRemoveClick={() => handleDeleteStudent(id)}
+                  />
+                </TCell>
+              </TRow>
+            )
+          )}
         </tbody>
       </Table>
     </>

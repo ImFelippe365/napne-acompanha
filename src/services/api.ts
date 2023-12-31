@@ -1,7 +1,6 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:8000/",
   headers: {
     "Access-Control-Allow-Origin": "*",
     // "aplication/json"
@@ -9,17 +8,17 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use(
-	async (config) => {
-		const token = localStorage.getItem("@NapneAcompanha:token");
+  async (config) => {
+    const token = localStorage.getItem("@NapneAcompanha:token");
 
-		if (token) config.headers.Authorization = `Bearer ${token}`;
+    if (token) config.headers.Authorization = `Bearer ${token}`;
 
-		return config;
-	},
-	(error) => {
-    if (error.status === 401) localStorage.clear()
-		return Promise.reject(error);
-	}
+    return config;
+  },
+  (error) => {
+    if (error.status === 401) localStorage.clear();
+    return Promise.reject(error);
+  }
 );
 
 api.interceptors.response.use(

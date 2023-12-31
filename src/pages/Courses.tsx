@@ -88,7 +88,7 @@ const Courses: React.FC = () => {
           title="Criar novo curso"
           description="Preencha os dados para criar um novo curso"
           onClose={() => toggleCreateCourseModal()}
-          onConfirm={() => handleSubmit(onSubmitCourse)}
+          onConfirm={handleSubmit(onSubmitCourse)}
           contentClassName="flex flex-col gap-4"
         >
           <ControlledInput
