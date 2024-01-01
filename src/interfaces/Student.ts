@@ -16,7 +16,7 @@ export interface CreateStudentData {
   name: string;
   registration: string;
   dateOfBirth: string;
-  picture?: string | undefined;
+  picture?: string | undefined | any;
   classId: string;
 }
 

@@ -103,10 +103,8 @@ const Students: React.FC = () => {
   };
 
   const onSubmitStudent = async (data: CreateStudentData) => {
-    console.log("result", data);
-
     const formData = new FormData();
-    formData.append("picture", data?.picture);
+    formData.append("picture", data?.picture as any);
     delete data.picture;
 
     const [day, month, year] = data.dateOfBirth.split("/").map(Number);
@@ -115,7 +113,8 @@ const Students: React.FC = () => {
       `${process.env.VITE_MS_STUDENT_URL}/students/create`,
       { ...data, dateOfBirth }
     );
-    const response = await api.put(
+
+    await api.put(
       `${process.env.VITE_MS_STUDENT_URL}/students/${student_data?.id}/picture`,
       formData,
       {
