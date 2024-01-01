@@ -22,6 +22,7 @@ const Input = ({
   error,
   helperText,
   containerClassName,
+  className,
   ...props
 }: InputProps) => {
   return (
@@ -31,7 +32,7 @@ const Input = ({
       </label>
       <input
         id={label}
-        className={`bg-background-color py-2 px-4 outline-none border-none rounded-lg w-full ${
+        className={`bg-background-color py-2 px-4 outline-none border-none rounded-lg w-full ${className} ${
           error ? "border-error border-solid border-[1px]" : ""
         }`}
         {...props}

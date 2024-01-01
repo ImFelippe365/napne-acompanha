@@ -5,6 +5,7 @@ export const formatNoteDate = (date: string) => {
     formattedDate.toLocaleDateString("pt-br", {
       day: "2-digit",
       month: "long",
+      year: "numeric",
     }) +
     " às " +
     formattedDate.toLocaleTimeString("pt-br", { timeStyle: "short" })

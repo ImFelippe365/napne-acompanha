@@ -29,6 +29,7 @@ import { useForm } from "react-hook-form";
 import { DiaryData } from "../interfaces/Diary";
 import { api } from "../services/api";
 import { useStudent } from "../hooks/StudentContext";
+import Loading from "../components/Loading";
 
 echarts.use([
   TitleComponent,
@@ -64,6 +65,7 @@ const StudentGrades: React.FC = () => {
   const {
     student,
     grades,
+    isLoadingGrades,
     selectedDiaryToGrades,
     setSelectedDiaryToGrades,
     selectedDiaryToGraph,
@@ -78,6 +80,7 @@ const StudentGrades: React.FC = () => {
     );
 
     setDiaries(response?.data ?? []);
+    setSelectedDiaryToGrades(response?.data[0].id);
   };
 
   const diariesOptionsSelect = diaries.map((diary) => ({
@@ -115,45 +118,129 @@ const StudentGrades: React.FC = () => {
 
   return (
     <>
-      {/* {showAddGradeModal && (
+      {showAddGradeModal && (
         <Modal
-          title="Cadastrar novo evento"
-          description="Preencha os dados para gerar um novo evento"
+          title="Cadastrar notas"
+          description="Preencha os dados para alterar as notas deste estudante"
           onClose={() => toggleAddGrade()}
           onConfirm={handleSubmit(onSubmitGrade)}
           contentClassName="flex flex-col gap-4"
         >
-          <ControlledInput
-            control={control}
-            name="score"
-            type="number"
-            label="Valor da nota"
-            maxLength={3}
-            placeholder="0 - 100"
-          />
-          
-          <ControlledInput
-            control={control}
-            name="score"
-            type="number"
-            label="Valor da nota"
-            maxLength={3}
-            placeholder="0 - 100"
-          />
+          <Table className="mt-2 min-w-[600px]">
+            <thead>
+              <TRow>
+                <THeader>Disciplina</THeader>
+                <THeader>1° Nota</THeader>
+                <THeader>2° Nota</THeader>
+                <THeader>3° Nota</THeader>
+                <THeader>4° Nota</THeader>
+              </TRow>
+            </thead>
+            <tbody>
+              {isLoadingGrades && <Loading message="Carregando notas..." />}
+              {/* {!isLoadingGrades && grades.length === 0 && (
+                <div>Nenhuma nota cadastrada</div>
+              )} */}
+              {grades.map((disciplineGrades) => (
+                <TRow key={disciplineGrades.id}>
+                  <TCell contrast>{disciplineGrades.name}</TCell>
+                  {/* {disciplineGrades.grades.map((grade) => (
+                    <TCell key={grade.gradeId}>{grade.score}</TCell>
+                  ))} */}
+                  <TCell>
+                    <ControlledInput
+                      control={control}
+                      name="bimester.1"
+                      label=""
+                      maxLength={3}
+                      defaultValue={
+                        disciplineGrades.grades.find(
+                          (grade) => grade.bimester === 1
+                        )?.score ?? ""
+                      }
+                      containerClassName="w-[60px]"
+                      className="text-center"
+                      placeholder="-"
+                    />
+                  </TCell>
+                  <TCell>
+                    <ControlledInput
+                      control={control}
+                      name="bimester.2"
+                      label=""
+                      maxLength={3}
+                      defaultValue={
+                        disciplineGrades.grades.find(
+                          (grade) => grade.bimester === 2
+                        )?.score ?? ""
+                      }
+                      containerClassName="w-[60px]"
+                      className="text-center"
+                      placeholder="-"
+                    />
+                  </TCell>
+                  <TCell>
+                    <ControlledInput
+                      control={control}
+                      name="bimester.3"
+                      label=""
+                      maxLength={3}
+                      defaultValue={
+                        disciplineGrades.grades.find(
+                          (grade) => grade.bimester === 3
+                        )?.score ?? ""
+                      }
+                      containerClassName="w-[60px]"
+                      className="text-center"
+                      placeholder="-"
+                    />
+                  </TCell>
+                  <TCell>
+                    <ControlledInput
+                      control={control}
+                      name="bimester.4"
+                      label=""
+                      maxLength={3}
+                      defaultValue={
+                        disciplineGrades.grades.find(
+                          (grade) => grade.bimester === 4
+                        )?.score ?? ""
+                      }
+                      containerClassName="w-[60px]"
+                      className="text-center"
+                      placeholder="-"
+                    />
+                  </TCell>
+                </TRow>
+              ))}
+            </tbody>
+          </Table>
+          {/* <section className="flex flex-row items-center gap-4">
+            <ControlledInput
+              control={control}
+              name="score"
+              type="number"
+              label="Valor da nota"
+              maxLength={3}
+              placeholder="0 - 100"
+            />
 
-          <ControlledInput
-            control={control}
-            name="bimester"
-            type="number"
-            label="Valor da nota"
-            placeholder="Nome do evento"
-          />
+            <ControlledInput
+              control={control}
+              name="score"
+              type="number"
+              label="Valor da nota"
+              maxLength={3}
+              placeholder="0 - 100"
+            />
+          </section> */}
         </Modal>
-      )} */}
+      )}
       <Heading title="Boletim">
         <Button
+          disabled={grades.length === 0}
           onClick={() => toggleAddGrade()}
-          className="flex flex-row items-center gap-2 py-2"
+          className={`flex flex-row items-center gap-2 py-2 `}
         >
           <IoMdAdd className="text-xl  text-white" />
           <span>Adicionar nota</span>

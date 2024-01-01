@@ -28,7 +28,7 @@ const Button = ({
 
   return (
     <button
-      className={`text-white text-sm font-semibold py-2 px-6 rounded-lg transition-all hover:opacity-50 ${colorClass} ${
+      className={`text-white text-sm font-semibold py-2 px-6 rounded-lg transition-all disabled:opacity-50 hover:opacity-50 ${colorClass} ${
         className ? className : ""
       }`}
       {...props}

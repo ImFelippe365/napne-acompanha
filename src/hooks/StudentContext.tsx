@@ -61,6 +61,7 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
 
   const getStudentGrades = useCallback(
     async (diary_id?: string) => {
+      setIsLoadingGrades(true);
       const { data } = await api.get(
         diary_id
           ? `${process.env.VITE_MS_STUDENT_URL}/grades/${student?.id}?diary_id=${diary_id}`
@@ -70,7 +71,7 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
       setGrades(data ?? []);
       setIsLoadingGrades(false);
     },
-    [student]
+    [student, selectedDiaryToGrades]
   );
 
   const getStudentNotes = useCallback(async () => {
@@ -92,6 +93,7 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
   }, [student]);
 
   const getStudentDetails = useCallback(async (studentId: string) => {
+    setIsLoadingStudent(true);
     const { data } = await api.get(
       `${process.env.VITE_MS_STUDENT_URL}/students/${studentId}/details`
     );
