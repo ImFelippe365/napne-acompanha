@@ -35,7 +35,9 @@ const Diaries: React.FC = () => {
   const [diaryToRemove, setDiaryToRemove] = useState("");
 
   const getAllDiaries = async () => {
-    const { data } = await api.get('napne/academic/diaries/all');
+    const { data } = await api.get(
+      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/all`
+    );
     setDiaries(data);
   }
 
