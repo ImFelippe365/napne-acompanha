@@ -19,6 +19,12 @@ import { api } from "../services/api";
 import { formatForBrazilDateStandard } from "../utils/formatDatetime";
 import { ClassData } from "../interfaces/Class";
 import { MAX_FILE_SIZE, isValidFileType } from "../utils/imageValidator";
+import Loading from "../components/Loading";
+import { useQuickToast } from "../hooks/QuickToastContext";
+import { calculeAge } from "../utils/calculeAge";
+import { CourseData } from "../interfaces/Course";
+import { formatShift } from "../utils/formatShift";
+import { shifts } from "../utils/shifts";
 
 const Students: React.FC = () => {
   const schema = yup.object().shape({
@@ -41,22 +47,57 @@ const Students: React.FC = () => {
     classId: yup.string().required("Campo obrigatório"),
   });
 
-  const { control, handleSubmit, reset, watch, setValue, getValues } = useForm({
-    defaultValues: {
-      picture: "",
-    },
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    resetField,
+    formState: { isSubmitting },
+  } = useForm({
     resolver: yupResolver(schema),
   });
 
+  const { handleShowToast } = useQuickToast();
   const navigate = useNavigate();
 
   const [students, setStudents] = useState<StudentData[]>([]);
+  const [courses, setCourses] = useState<CourseData[]>([]);
   const [classes, setClasses] = useState<ClassData[]>([]);
+
+  const selectedCourse = watch("course");
+
+  const courseSelectOptions = courses.map((course) => ({
+    label: course.name,
+    value: course.id,
+  }));
+
+  const classSelectOptions = classes
+    .map((schoolClass) => ({
+      label: `${schoolClass.course.byname} - ${schoolClass.referencePeriod}° ${
+        schoolClass.course.periodsQuantity > 4 ? "período" : "ano"
+      } (${formatShift(schoolClass.shift)})`,
+      value: schoolClass.id,
+      courseId: schoolClass.courseId,
+    }))
+    .filter((schoolClass) => schoolClass.courseId === selectedCourse);
+
+  const shiftSelectOptions = shifts.map((shift) => ({
+    label: `${formatShift(shift)}`,
+    value: shift,
+  }));
+
+  useEffect(() => {
+    resetField("classId", { defaultValue: "" });
+  }, [selectedCourse]);
 
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
   const [showDeleteStudentModal, setShowDeleteStudentModal] = useState(false);
 
   const [studentToRemove, setStudentToRemove] = useState("");
+  const [isDeletingStudent, setIsDeletingStudent] = useState(false);
+
+  const [loadingStudents, setLoadingStudents] = useState(true);
 
   const getAllStudents = async () => {
     const { data } = await api.get(
@@ -68,6 +109,11 @@ const Students: React.FC = () => {
     );
     setClasses(allClasses);
 
+    const { data: allCourses } = await api.get(
+      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/all`
+    );
+    setCourses(allCourses);
+
     data.forEach((student: StudentData) => {
       const matchingClass = allClasses.find(
         (schoolClass: ClassData) => schoolClass.id === student.classId
@@ -77,6 +123,7 @@ const Students: React.FC = () => {
       }
     });
     setStudents(data);
+    setLoadingStudents(false);
   };
 
   const toggleCreateStudentModal = () => {
@@ -114,22 +161,33 @@ const Students: React.FC = () => {
       { ...data, dateOfBirth }
     );
 
-    await api.put(
-      `${process.env.VITE_MS_STUDENT_URL}/students/${student_data?.id}/picture`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    if (formData.get("picture") !== "undefined") {
+      await api.put(
+        `${process.env.VITE_MS_STUDENT_URL}/students/${student_data?.id}/picture`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    }
+    handleShowToast("success", "Estudante criado com sucesso!");
     toggleCreateStudentModal();
     getAllStudents();
+
+    return student_data;
   };
 
-  const onDeleteStudent = () => {
-    console.log("estudante para remover", studentToRemove);
+  const onDeleteStudent = async () => {
+    setIsDeletingStudent(true);
+    await api.delete(
+      `${process.env.VITE_MS_STUDENT_URL}/students/remove?id=${studentToRemove}`
+    );
+    getAllStudents();
     toggleDeleteStudentModal();
+    setIsDeletingStudent(false);
+    handleShowToast("success", "Estudante removido!");
   };
 
   useEffect(() => {
@@ -144,6 +202,7 @@ const Students: React.FC = () => {
           description="Deseja excluir este aluno e TODOS os seus dados permanentemente?"
           onClose={() => toggleDeleteStudentModal()}
           onConfirm={() => onDeleteStudent()}
+          isLoading={isDeletingStudent}
         />
       )}
       {showCreateStudentModal && (
@@ -153,6 +212,7 @@ const Students: React.FC = () => {
           onClose={() => toggleCreateStudentModal()}
           onConfirm={handleSubmit(onSubmitStudent)}
           contentClassName="flex flex-col gap-3"
+          isLoading={isSubmitting}
         >
           <ControlledInput
             control={control}
@@ -199,44 +259,21 @@ const Students: React.FC = () => {
             name="course"
             label="Curso"
             placeholder="XX/XX/XXXX"
-            options={[
-              {
-                label: "Análise e Desenvolvimento de Sistemas",
-                value: "1",
-              },
-            ]}
+            options={courseSelectOptions}
           />
           <ControlledSelect
             control={control}
             name="shift"
             label="Turno"
-            disabled={!watch("course")}
-            options={[
-              {
-                label: "Manhã",
-                value: "1",
-              },
-              {
-                label: "Tarde",
-                value: "1",
-              },
-              {
-                label: "Noite",
-                value: "1",
-              },
-            ]}
+            disabled={!selectedCourse}
+            options={shiftSelectOptions}
           />
           <ControlledSelect
             control={control}
             name="classId"
             label="Turma"
             disabled={!watch("shift")}
-            options={[
-              {
-                label: "1° período",
-                value: "1",
-              },
-            ]}
+            options={classSelectOptions}
           />
         </Modal>
       )}
@@ -266,6 +303,7 @@ const Students: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
+          {loadingStudents && <Loading />}
           {students.map(
             ({
               id,
@@ -288,7 +326,7 @@ const Students: React.FC = () => {
                   </div>
                 </TCell>
                 <TCell>{registration}</TCell>
-                <TCell>20</TCell>
+                <TCell>{calculeAge(dateOfBirth)}</TCell>
                 <TCell>{schoolClass?.course.name}</TCell>
                 <TCell>{schoolClass?.referencePeriod} período</TCell>
                 <TCell>

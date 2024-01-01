@@ -1,3 +1,4 @@
+import { Spinner } from "flowbite-react";
 import React from "react";
 
 interface ButtonProps
@@ -8,14 +9,14 @@ interface ButtonProps
   children: React.ReactNode;
   color?: "success" | "error" | "base";
   className?: string;
-  loading?: boolean
+  isLoading?: boolean;
 }
 
 const Button = ({
   children,
   className,
   color = "base",
-  loading,
+  isLoading,
   ...props
 }: ButtonProps) => {
   const colorClass =
@@ -32,6 +33,9 @@ const Button = ({
       }`}
       {...props}
     >
+      {isLoading && (
+        <Spinner size="sm" color={"success"} className="text-white mr-2" />
+      )}
       {children}
     </button>
   );

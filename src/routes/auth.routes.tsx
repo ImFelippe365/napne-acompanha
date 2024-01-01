@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import SignIn from "../pages/SignIn";
 import PageNotFound from "../pages/PageNotFound";
 
@@ -10,7 +10,7 @@ const AuthRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/entrar" element={<SignIn />} />
-      <Route path="*" element={<Navigate to={"/entrar"} />} />
+      <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };

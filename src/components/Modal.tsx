@@ -8,6 +8,7 @@ interface ModalProps {
   contentClassName?: string;
   onClose: () => void;
   onConfirm: () => void;
+  isLoading?: boolean;
 }
 
 const Modal = ({
@@ -17,9 +18,10 @@ const Modal = ({
   children,
   onClose,
   onConfirm,
+  isLoading,
 }: ModalProps) => {
   return (
-    <div className="absolute flex items-center justify-center inset-0 bg-background-black-transparent z-10">
+    <div className="fixed flex items-center justify-center inset-0 bg-background-black-transparent z-10">
       <div
         className={`bg-white px-9 py-10 rounded-3xl ${
           contentClassName ? contentClassName : ""
@@ -43,7 +45,9 @@ const Modal = ({
           <Button onClick={() => onClose()} color="error">
             Cancelar
           </Button>
-          <Button onClick={() => onConfirm()}>Confirmar</Button>
+          <Button isLoading={isLoading} onClick={() => onConfirm()}>
+            Confirmar
+          </Button>
         </footer>
       </div>
     </div>

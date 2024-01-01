@@ -3,7 +3,7 @@ import { DiaryData } from './Diary';
 export interface ClassData {
   id: string;
   referencePeriod: number;
-  shift: string;
+  shift: Shift;
   courseId: string;
   course: CourseData;
   diaryId: string;
@@ -16,3 +16,5 @@ export interface CreateClassData {
   courseId: string;
   diaryId: string;
 }
+
+export type Shift  = "MORNING" | "AFTERNOON" | "NIGHT"
