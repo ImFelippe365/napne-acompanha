@@ -14,6 +14,8 @@ import Modal from "../components/Modal";
 import { ControlledSelect } from "../components/Select";
 import { ClassData, CreateClassData } from "../interfaces/Class";
 import { api } from "../services/api";
+import Loading from "../components/Loading";
+import { useAcademicManagement } from "../hooks/AcademicManegementContext";
 
 const Classes: React.FC = () => {
   const schema = yup.object().shape({
@@ -28,21 +30,23 @@ const Classes: React.FC = () => {
   });
 
   const [classes, setClasses] = useState<ClassData[]>([]);
-  const [diaries, setDiaries] = useState<ClassData[]>([]);
 
   const [showCreateClassModal, setShowCreateClassModal] = useState(false);
   const [showDeleteClassModal, setShowDeleteClassModal] = useState(false);
 
   const [classToRemove, setClassToRemove] = useState("");
+  const [loadingClasses, setLoadingClasses] = useState(true);
+
+  const {
+    diaries,
+    isLoadingDiaries,
+    getAllDiaries,
+  } = useAcademicManagement();
 
   const getAllClasses = async () => {
-    const { data } = await api.get('napne/academic/classes/all');
+    const { data } = await api.get(`${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/classes/all`);
     setClasses(data);
-  }
-
-  const getAllDiaries = async () => {
-    const { data } = await api.get('napne/academic/diaries/all');
-    setDiaries(data);
+    setLoadingClasses(false);
   }
 
   const toggleCreateClassModal = () => {
@@ -179,6 +183,7 @@ const Classes: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
+          {loadingClasses && <Loading />}
           {classes.map(({ id, referencePeriod, shift, courseId, course, diaryId }) => (
             <TRow key={id}>
               <TCell contrast>{course.byname}{referencePeriod}{shift === "morning" ? "M" : shift === "Tarde" ? "V" : "N"}</TCell>

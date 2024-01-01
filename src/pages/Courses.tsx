@@ -15,6 +15,8 @@ import { ControlledSelect } from "../components/Select"
 import { CourseData, CreateCourseData } from "../interfaces/Course"
 import { api } from "../services/api"
 import axios from "axios"
+import Loading from "../components/Loading"
+import { useAcademicManagement } from "../hooks/AcademicManegementContext"
 
 const Courses: React.FC = () => {
   const schema = yup.object().shape({
@@ -33,8 +35,6 @@ const Courses: React.FC = () => {
     resolver: yupResolver(schema)
   })
 
-  const [courses, setCourses] = useState<CourseData[]>([]);
-
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
   const [showDeleteCourseModal, setShowDeleteCourseModal] = useState(false);
 
@@ -44,12 +44,18 @@ const Courses: React.FC = () => {
 
   const [editing, setEditing] = useState(false);
 
-  const getAllCourses = async () => {
-    const { data } = await api.get(
-      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/all`
-    );
-    setCourses(data);
-  };
+  // const getAllCourses = async () => {
+  //   const { data } = await api.get(
+  //     `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/all`
+  //   );
+  //   setCourses(data);
+  //   setLoadingCourses(false);
+  // };
+  const {
+    courses,
+    isLoadingCourses,
+    getAllCourses,
+  } = useAcademicManagement();
 
   const toggleCreateCourseModal = () => {
     reset({});
@@ -79,7 +85,7 @@ const Courses: React.FC = () => {
         const response = await api.put(
           `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/${courseToEdit?.id}/modify`, data
         )
-  
+
         if (response.status === 200) {
           toggleCreateCourseModal();
           setEditing(false)
@@ -202,7 +208,8 @@ const Courses: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          {courses.map(({ id, name, degree, byname, periodsQuantity }) => (
+          {isLoadingCourses && <Loading />}
+          {courses?.map(({ id, name, degree, byname, periodsQuantity }) => (
             <TRow key={id}>
               <TCell contrast>{name}</TCell>
               <TCell>{byname}</TCell>

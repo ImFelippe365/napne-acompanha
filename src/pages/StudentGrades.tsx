@@ -1,13 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Heading from "../components/Heading";
-import Table from "../components/Table";
-import THeader from "../components/THeader";
-import TRow from "../components/TRow";
-import TCell from "../components/TCell";
-import TActions from "../components/TActions";
-import { Select } from "../components/Select";
-
-import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts/core";
 import { BarChart } from "echarts/charts";
 
@@ -16,20 +7,25 @@ import {
   TooltipComponent,
   TitleComponent,
 } from "echarts/components";
-
+import ReactECharts from "echarts-for-react";
 import { CanvasRenderer } from "echarts/renderers";
-
-import Button from "../components/Button";
-import { IoMdAdd } from "react-icons/io";
-import Modal from "../components/Modal";
-import { ControlledInput } from "../components/Input";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { DiaryData } from "../interfaces/Diary";
-import { api } from "../services/api";
 import { useStudent } from "../hooks/StudentContext";
+import { useAcademicManagement } from "../hooks/AcademicManegementContext";
+import Modal from "../components/Modal";
+import Table from "../components/Table";
+import TRow from "../components/TRow";
+import THeader from "../components/THeader";
+import TCell from "../components/TCell";
 import Loading from "../components/Loading";
+import { ControlledInput } from "../components/Input";
+import Button from "../components/Button";
+import Heading from "../components/Heading";
+import { IoMdAdd } from "react-icons/io";
+import { Select } from "../components/Select";
+import TActions from "../components/TActions";
 
 echarts.use([
   TitleComponent,
@@ -62,6 +58,8 @@ const StudentGrades: React.FC = () => {
     resolver: yupResolver(schema),
   });
 
+  const { diaries, getAllDiaries } = useAcademicManagement();
+
   const {
     student,
     grades,
@@ -72,16 +70,15 @@ const StudentGrades: React.FC = () => {
     setSelectedDiaryToGraph,
   } = useStudent();
 
-  const [diaries, setDiaries] = useState<DiaryData[]>([]);
+  // const [diaries, setDiaries] = useState<DiaryData[]>([]);
 
-  const getAllDiaries = async () => {
-    const response = await api.get(
-      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/all`
-    );
+  // const getAllDiaries = async () => {
+  //   const response = await api.get(
+  //     `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/all`
+  //   );
 
-    setDiaries(response?.data ?? []);
-    setSelectedDiaryToGrades(response?.data[0].id);
-  };
+  //   setDiaries(response?.data ?? []);
+  // };
 
   const diariesOptionsSelect = diaries.map((diary) => ({
     label: `${diary.referenceYear}.${diary.referencePeriod}`,
