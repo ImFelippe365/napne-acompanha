@@ -39,8 +39,10 @@ const Courses: React.FC = () => {
   const [showDeleteCourseModal, setShowDeleteCourseModal] = useState(false);
 
   const [courseToRemove, setCourseToRemove] = useState("");
-  const [courseToEdit, setCourseToEdit] = useState("");
+  const [courseToEdit, setCourseToEdit] = useState<CourseData>();
   const [enabledFields, setEnabledFields] = useState(true);
+
+  const [editing, setEditing] = useState(false);
 
   const getAllCourses = async () => {
     const { data } = await api.get(
@@ -60,9 +62,9 @@ const Courses: React.FC = () => {
 
   const handleEditCourse = async (course: CourseData) => {
     reset(course);
-    console.log(course)
+    setEditing(true);
+    setCourseToEdit(course);
     setShowCreateCourseModal(true);
-    
   };
 
   const handleDeleteCourse = (courseId: string) => {
@@ -72,32 +74,28 @@ const Courses: React.FC = () => {
   };
 
   const onSubmitCourse = async (data: CreateCourseData) => {
-    console.log(data)
     try {
-      const response = await api.post(
-        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/create`, data
-      )
+      if (editing) {
+        const response = await api.put(
+          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/${courseToEdit?.id}/modify`, data
+        )
+  
+        if (response.status === 200) {
+          toggleCreateCourseModal();
+          setEditing(false)
+          reset({});
+          getAllCourses();
+        }
+      } else {
+        const response = await api.post(
+          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/create`, data
+        )
 
-      if (response.status === 201) {
-        toggleCreateCourseModal();
-        reset({});
-        getAllCourses();
-      }
-    } catch (err) {
-      console.log("Erro inesperado");
-    }
-  };
-
-  const onEditCourse = async () => {
-    try {
-      const response = await api.put(
-        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/${courseToEdit}/modify`, course
-      )
-
-      if (response.status === 200) {
-        toggleCreateCourseModal();
-        reset({});
-        getAllCourses();
+        if (response.status === 201) {
+          toggleCreateCourseModal();
+          reset({});
+          getAllCourses();
+        }
       }
     } catch (err) {
       console.log("Erro inesperado");
