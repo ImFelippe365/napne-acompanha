@@ -29,6 +29,7 @@ import { useForm } from "react-hook-form";
 import { DiaryData } from "../interfaces/Diary";
 import { api } from "../services/api";
 import { useStudent } from "../hooks/StudentContext";
+import { useAcademicManagement } from "../hooks/AcademicManegementContext";
 
 echarts.use([
   TitleComponent,
@@ -62,6 +63,11 @@ const StudentGrades: React.FC = () => {
   });
 
   const {
+    diaries,
+    getAllDiaries
+  } = useAcademicManagement(); 
+
+  const {
     student,
     grades,
     selectedDiaryToGrades,
@@ -70,15 +76,15 @@ const StudentGrades: React.FC = () => {
     setSelectedDiaryToGraph,
   } = useStudent();
 
-  const [diaries, setDiaries] = useState<DiaryData[]>([]);
+  // const [diaries, setDiaries] = useState<DiaryData[]>([]);
 
-  const getAllDiaries = async () => {
-    const response = await api.get(
-      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/all`
-    );
+  // const getAllDiaries = async () => {
+  //   const response = await api.get(
+  //     `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/all`
+  //   );
 
-    setDiaries(response?.data ?? []);
-  };
+  //   setDiaries(response?.data ?? []);
+  // };
 
   const diariesOptionsSelect = diaries.map((diary) => ({
     label: `${diary.referenceYear}.${diary.referencePeriod}`,

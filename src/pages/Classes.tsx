@@ -15,6 +15,7 @@ import { ControlledSelect } from "../components/Select";
 import { ClassData, CreateClassData } from "../interfaces/Class";
 import { api } from "../services/api";
 import Loading from "../components/Loading";
+import { useAcademicManagement } from "../hooks/AcademicManegementContext";
 
 const Classes: React.FC = () => {
   const schema = yup.object().shape({
@@ -29,7 +30,6 @@ const Classes: React.FC = () => {
   });
 
   const [classes, setClasses] = useState<ClassData[]>([]);
-  const [diaries, setDiaries] = useState<ClassData[]>([]);
 
   const [showCreateClassModal, setShowCreateClassModal] = useState(false);
   const [showDeleteClassModal, setShowDeleteClassModal] = useState(false);
@@ -37,16 +37,16 @@ const Classes: React.FC = () => {
   const [classToRemove, setClassToRemove] = useState("");
   const [loadingClasses, setLoadingClasses] = useState(true);
 
+  const {
+    diaries,
+    isLoadingDiaries,
+    getAllDiaries,
+  } = useAcademicManagement();
 
   const getAllClasses = async () => {
     const { data } = await api.get(`${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/classes/all`);
     setClasses(data);
     setLoadingClasses(false);
-  }
-
-  const getAllDiaries = async () => {
-    const { data } = await api.get(`${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/all`);
-    setDiaries(data);
   }
 
   const toggleCreateClassModal = () => {
