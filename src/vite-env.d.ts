@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_MS_STUDENT_URL: string;
   readonly VITE_MS_STUDENT_PICTURES: string;
   readonly VITE_MS_GATEWAY_URL: string;
+  readonly VITE_SUAP_URL: string;
 }
 
 interface ImportMeta {
@@ -16,6 +17,7 @@ declare namespace NodeJS {
     readonly VITE_MS_ACADEMIC_MANAGEMENT_URL: string;
     readonly VITE_MS_STUDENT_URL: string;
     readonly VITE_MS_GATEWAY_URL: string;
-    readonly VITE_MS_STUDENT_PICTURES: string;
+    readonly VITE_MS_GATEWAY_URL: string;
+    readonly VITE_SUAP_URL: string;
   }
 }

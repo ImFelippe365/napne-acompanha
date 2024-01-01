@@ -26,6 +26,16 @@ interface StudentContextValues {
   selectedDiaryToGraph: string;
   setSelectedDiaryToGraph: React.Dispatch<React.SetStateAction<string>>;
 
+  isLoadingStudent: boolean;
+  isLoadingNotes: boolean;
+  isLoadingGrades: boolean;
+  isLoadingEvents: boolean;
+
+  setIsLoadingStudent: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoadingNotes: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoadingGrades: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoadingEvents: React.Dispatch<React.SetStateAction<boolean>>;
+
   getStudentDetails: (studentId: string) => Promise<void>;
   getStudentGrades: (diary_id?: string) => Promise<void>;
   getStudentNotes: () => Promise<void>;
@@ -40,6 +50,11 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
   const [notes, setNotes] = useState<StudentNote[]>([]);
   const [eventParticipations, setEventParticipations] = useState<any[]>([]);
 
+  const [isLoadingStudent, setIsLoadingStudent] = useState<boolean>(true);
+  const [isLoadingNotes, setIsLoadingNotes] = useState<boolean>(true);
+  const [isLoadingGrades, setIsLoadingGrades] = useState<boolean>(true);
+  const [isLoadingEvents, setIsLoadingEvents] = useState<boolean>(true);
+
   const [selectedDiaryToGrades, setSelectedDiaryToGrades] =
     useState<string>("");
   const [selectedDiaryToGraph, setSelectedDiaryToGraph] = useState<string>("");
@@ -53,8 +68,9 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
       );
 
       setGrades(data ?? []);
+      setIsLoadingGrades(false);
     },
-    [student?.id]
+    [student]
   );
 
   const getStudentNotes = useCallback(async () => {
@@ -63,7 +79,8 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
     );
 
     setNotes(data ?? []);
-  }, [student?.id]);
+    setIsLoadingNotes(false);
+  }, [student]);
 
   const getStudentEventParticipations = useCallback(async () => {
     const { data } = await api.get(
@@ -71,7 +88,8 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
     );
 
     setEventParticipations(data ?? []);
-  }, [student?.id]);
+    setIsLoadingEvents(false);
+  }, [student]);
 
   const getStudentDetails = useCallback(async (studentId: string) => {
     const { data } = await api.get(
@@ -79,11 +97,20 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
     );
 
     setStudent(data);
+    setIsLoadingStudent(false);
   }, []);
 
   useEffect(() => {
     getStudentGrades(selectedDiaryToGrades);
   }, [selectedDiaryToGrades, selectedDiaryToGraph]);
+
+  useEffect(() => {
+    if (student?.id) {
+      getStudentNotes();
+      getStudentGrades();
+      getStudentEventParticipations();
+    }
+  }, [student]);
 
   const contextValues = {
     student,
@@ -98,6 +125,16 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
     setSelectedDiaryToGrades,
     selectedDiaryToGraph,
     setSelectedDiaryToGraph,
+
+    isLoadingStudent,
+    isLoadingNotes,
+    isLoadingGrades,
+    isLoadingEvents,
+
+    setIsLoadingStudent,
+    setIsLoadingNotes,
+    setIsLoadingGrades,
+    setIsLoadingEvents,
 
     getStudentDetails,
     getStudentGrades,

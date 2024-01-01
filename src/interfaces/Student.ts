@@ -1,5 +1,6 @@
 import { ClassData } from "./Class";
 import { Grade } from "./Grade";
+import { User } from "./User";
 
 export interface StudentData {
   id: string;
@@ -38,4 +39,10 @@ export interface StudentNote {
   studentId: string;
   createdBy: string;
   createdAt: string;
+  user: User;
+}
+
+export interface CreateStudentNote {
+  title: string;
+  description: string;
 }
