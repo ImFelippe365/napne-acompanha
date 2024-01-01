@@ -13,7 +13,6 @@ import StudentProfile from "../pages/StudentProfile";
 import StudentGrades from "../pages/StudentGrades";
 import StudentEvents from "../pages/StudentEvents";
 import StudentNotes from "../pages/StudentNotes";
-import StudentPEI from "../pages/StudentPEI";
 import StudentDetails from "../pages/StudentDetails";
 import Overview from "../pages/Overview";
 import PageNotFound from "../pages/PageNotFound";
@@ -30,7 +29,6 @@ const AppRoutes: React.FC = () => {
           <Route path="boletins" element={<StudentGrades />} />
           <Route path="eventos" element={<StudentEvents />} />
           <Route path="anotacoes" element={<StudentNotes />} />
-          <Route path="pei" element={<StudentPEI />} />
         </Route>
         <Route path="eventos" element={<Events />} />
         <Route path="gestao-academica" element={<AcademicManagement />}>

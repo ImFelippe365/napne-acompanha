@@ -4,6 +4,7 @@ import { BiSolidUser, BiSolidPencil } from "react-icons/bi";
 import { IoDocumentText, IoSchool, IoCalendarNumber } from "react-icons/io5";
 import { calculeAge } from "../utils/calculeAge";
 import { useStudent } from "../hooks/StudentContext";
+import Loading from "../components/Loading";
 
 const StudentProfile: React.FC = () => {
   const { pathname } = useLocation();
@@ -12,19 +13,12 @@ const StudentProfile: React.FC = () => {
 
   const {
     student,
+    isLoadingStudent,
     getStudentDetails,
-
-    getStudentNotes,
-    getStudentGrades,
-    getStudentEventParticipations,
   } = useStudent();
 
   useEffect(() => {
     getStudentDetails(id ?? "");
-
-    getStudentNotes();
-    getStudentGrades();
-    getStudentEventParticipations();
   }, []);
 
   const menu = [
@@ -48,13 +42,9 @@ const StudentProfile: React.FC = () => {
       path: `/discentes/${id}/anotacoes`,
       icon: <BiSolidPencil className="text-lg" />,
     },
-    // {
-    //   title: "Plano Educacional (PEI)",
-    //   path: "/discentes/1/pei",
-    //   icon: <IoSchool className="text-lg" />,
-    // },
   ];
 
+  if (isLoadingStudent) return <Loading />;
   return (
     <section className="grid grid-cols-studentProfileContainer gap-24">
       <aside className="min-[250px] overflow-y-hidden">
@@ -64,7 +54,7 @@ const StudentProfile: React.FC = () => {
         />
         <article className="mt-2 mb-4">
           <h3 className="text-black font-bold text-xl">{student?.name}</h3>
-          <p className="text-gray">{calculeAge(student?.dateOfBirth)}</p>
+          <p className="text-gray">{calculeAge(student?.dateOfBirth)} anos</p>
         </article>
 
         {menu.map(({ title, path, icon }, index) => (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Heading from "../components/Heading";
 import Button from "../components/Button";
 import { IoMdAdd } from "react-icons/io";
@@ -7,18 +7,52 @@ import { ControlledInput } from "../components/Input";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { useStudent } from "../hooks/StudentContext";
+import { CreateStudentNote } from "../interfaces/Student";
+import { api } from "../services/api";
+import { useQuickToast } from "../hooks/QuickToastContext";
+import { useAuth } from "../hooks/AuthContext";
+import { formatUserDepartment } from "../utils/formatUserDepartment";
+import Loading from "../components/Loading";
+import { formatNoteDate } from "../utils/formatNoteDate";
 
 const StudentNotes: React.FC = () => {
   const schema = yup.object().shape({
-    title: yup.number().required("Campo obrigatório"),
-    description: yup.number().required("Campo obrigatório"),
+    title: yup.string().required("Campo obrigatório"),
+    description: yup.string().required("Campo obrigatório"),
   });
 
-  const { control, handleSubmit } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm({
     resolver: yupResolver(schema),
   });
 
-  const onSubmitNote = () => {};
+  const { user } = useAuth();
+  const { getStudentNotes, notes, isLoadingNotes, student } = useStudent();
+  const { handleShowToast } = useQuickToast();
+
+  const onSubmitNote = async (data: CreateStudentNote) => {
+    const response = await api.post(
+      `${process.env.VITE_MS_STUDENT_URL}/notes/create`,
+      {
+        ...data,
+        studentId: student?.id,
+        createdBy: user?.id,
+      }
+    );
+    handleShowToast("success", "Nota adicionada!");
+    getStudentNotes();
+    reset({});
+    return response;
+  };
+
+  // useEffect(() => {
+  //   getStudentNotes();
+  // }, []);
 
   return (
     <>
@@ -45,6 +79,7 @@ const StudentNotes: React.FC = () => {
           <Button
             onClick={handleSubmit(onSubmitNote)}
             className="flex flex-row items-center gap-2 py-3"
+            isLoading={isSubmitting}
           >
             <IoMdAdd className="text-xl  text-white" />
             <span>Adicionar nota</span>
@@ -53,32 +88,35 @@ const StudentNotes: React.FC = () => {
       </form>
 
       <hr className="text-light-gray my-8" />
+      {isLoadingNotes && (
+        <Loading message="Carregando anotações do estudante..." />
+      )}
 
-      <section>
-        <div className="flex flex-row items-center gap-3 mb-2">
-          <image href="" className="w-8 h-8 bg-black rounded-full" />
-          <div>
-            <span className="text-black font-semibold">
-              Felippe Rian de Oliveira{" "}
-              <span className="text-gray text-xs font-normal">
-                07 de novembro de 2023, 11:00{" "}
+      {notes.map((note) => (
+        <section key={note.id} className="mb-8">
+          <div className="flex flex-row items-center gap-3 mb-2">
+            <img
+              src={`${process.env.VITE_SUAP_URL}${note.user.picture}`}
+              className="w-8 h-8 bg-black rounded-full object-cover"
+            />
+            <div>
+              <span className="text-black font-semibold">
+                {note.user.name + " "}
+                <span className="text-gray text-xs font-normal">
+                  {formatNoteDate(note.createdAt)}
+                </span>
               </span>
-            </span>
-            <p className="text-xs font-semibold text-gray">Professor(a)</p>
+              <p className="text-xs font-semibold text-gray">
+                {formatUserDepartment(note.user.department)}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <article className="text-black font-normal text-sm ml-11">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut
-          maximus eros. Praesent aliquet accumsan bibendum. Vestibulum nec
-          suscipit eros. Donec sagittis sed tortor at iaculis. Donec porta
-          vulputate quam at consectetur. Sed justo ante, vulputate sed odio
-          semper, luctus faucibus nulla. Ut blandit lectus sed lectus maximus,
-          non tincidunt ex pharetra. Quisque euismod nibh eu luctus egestas.
-          Vivamus rutrum, leo eget gravida sagittis, eros ex tempor arcu, sed
-          sollicitudin turpis mi a ligula. Ut eget massa purus.
-        </article>
-      </section>
+          <article className="text-black font-normal text-sm ml-11">
+            {note.description}
+          </article>
+        </section>
+      ))}
     </>
   );
 };

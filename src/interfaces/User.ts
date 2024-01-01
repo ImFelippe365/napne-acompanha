@@ -1,9 +1,9 @@
-export type Deparment = "TEACHER" | "ADMINISTRATOR";
+export type Department = "TEACHER" | "ADMINISTRATOR";
 
 export interface User {
   id: string;
   name: string;
-  department: Deparment;
+  department: Department;
   picture: string | undefined;
   registration: string;
 }
