@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 
 import App from "../App";
 import Students from "../pages/Students";
@@ -41,7 +41,7 @@ const AppRoutes: React.FC = () => {
         </Route>
       </Route>
 
-      <Route path="*" element={<PageNotFound />} />
+      <Route path="*" element={<Navigate to={"/"} />} />
     </Routes>
   );
 };
