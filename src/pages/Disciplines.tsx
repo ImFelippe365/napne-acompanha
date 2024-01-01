@@ -14,6 +14,7 @@ import { ControlledInput } from "../components/Input";
 import { ControlledSelect } from "../components/Select";
 import { CreateDisciplineData, DisciplineData } from "../interfaces/Discipline";
 import { api } from "../services/api";
+import Loading from "../components/Loading";
 
 const Disciplines: React.FC = () => {
   const schema = yup.object().shape({
@@ -34,10 +35,13 @@ const Disciplines: React.FC = () => {
   const [showDeleteDisciplineModal, setShowDeleteDisciplineModal] = useState(false);
 
   const [disciplineToRemove, setDisciplineToRemove] = useState("");
+  const [loadingDisciplines, setLoadingDisciplines] = useState(true);
+
 
   const getAllDisciplines = async () => {
-    const { data } = await api.get('napne/academic/disciplines/all')
+    const { data } = await api.get(`${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/disciplines/all`)
     setDisciplines(data)
+    setLoadingDisciplines(false);
   };
 
   const toggleCreateDisciplineModal = () => {
@@ -172,6 +176,7 @@ const Disciplines: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
+          {loadingDisciplines && <Loading />}
           {disciplines.map(({ id, name, referencePeriod, code, isOptative, courseId, course }) => (
             <TRow key={id}>
               <TCell>{code}</TCell>

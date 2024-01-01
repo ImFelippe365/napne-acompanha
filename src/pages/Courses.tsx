@@ -15,6 +15,7 @@ import { ControlledSelect } from "../components/Select"
 import { CourseData, CreateCourseData } from "../interfaces/Course"
 import { api } from "../services/api"
 import axios from "axios"
+import Loading from "../components/Loading"
 
 const Courses: React.FC = () => {
   const schema = yup.object().shape({
@@ -44,11 +45,14 @@ const Courses: React.FC = () => {
 
   const [editing, setEditing] = useState(false);
 
+  const [loadingCourses, setLoadingCourses] = useState(true);
+
   const getAllCourses = async () => {
     const { data } = await api.get(
       `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/all`
     );
     setCourses(data);
+    setLoadingCourses(false);
   };
 
   const toggleCreateCourseModal = () => {
@@ -79,7 +83,7 @@ const Courses: React.FC = () => {
         const response = await api.put(
           `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/${courseToEdit?.id}/modify`, data
         )
-  
+
         if (response.status === 200) {
           toggleCreateCourseModal();
           setEditing(false)
@@ -202,6 +206,7 @@ const Courses: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
+          {loadingCourses && <Loading />}
           {courses.map(({ id, name, degree, byname, periodsQuantity }) => (
             <TRow key={id}>
               <TCell contrast>{name}</TCell>

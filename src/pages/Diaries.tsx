@@ -14,6 +14,7 @@ import * as yup from "yup";
 import { CreateDiaryData, DiaryData } from "../interfaces/Diary";
 import { api } from "../services/api";
 import { formatDatetime } from "../utils/formatDatetime";
+import Loading from "../components/Loading";
 
 const Diaries: React.FC = () => {
   const schema = yup.object().shape({
@@ -34,11 +35,15 @@ const Diaries: React.FC = () => {
 
   const [diaryToRemove, setDiaryToRemove] = useState("");
 
+  const [loadingDiaries, setLoadingDiaries] = useState(true);
+
+
   const getAllDiaries = async () => {
     const { data } = await api.get(
       `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/all`
     );
     setDiaries(data);
+    setLoadingDiaries(false);
   }
 
   const toggleCreateDiaryModal = () => {
@@ -141,6 +146,7 @@ const Diaries: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
+          {loadingDiaries && <Loading />}
           {diaries.map(({ id, referenceYear, referencePeriod, startDate, endDate }) => (
             <TRow key={id}>
               <TCell contrast>{referenceYear}.{referencePeriod}</TCell>
