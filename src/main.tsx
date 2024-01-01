@@ -4,13 +4,16 @@ import "./index.css";
 import Routes from "./routes/index.tsx";
 import { AuthProvider } from "./hooks/AuthContext.tsx";
 import { StudentProvider } from "./hooks/StudentContext.tsx";
+import { QuickToastProvider } from "./hooks/QuickToastContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AuthProvider>
-      <StudentProvider>
-        <Routes />
-      </StudentProvider>
-    </AuthProvider>
+    <QuickToastProvider>
+      <AuthProvider>
+        <StudentProvider>
+          <Routes />
+        </StudentProvider>
+      </AuthProvider>
+    </QuickToastProvider>
   </React.StrictMode>
 );
