@@ -39,10 +39,13 @@ const Courses: React.FC = () => {
   const [showDeleteCourseModal, setShowDeleteCourseModal] = useState(false);
 
   const [courseToRemove, setCourseToRemove] = useState("");
+  const [courseToEdit, setCourseToEdit] = useState("");
   const [enabledFields, setEnabledFields] = useState(true);
 
   const getAllCourses = async () => {
-    const { data } = await api.get('napne/academic/courses/all');
+    const { data } = await api.get(
+      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/all`
+    );
     setCourses(data);
   };
 
@@ -55,41 +58,66 @@ const Courses: React.FC = () => {
 
   const toggleDeleteCourseModal = () => setShowDeleteCourseModal((visible) => !visible);
 
-  const handleEditCourse = (course: CourseData) => {
+  const handleEditCourse = async (course: CourseData) => {
     reset(course);
+    console.log(course)
     setShowCreateCourseModal(true);
+    
   };
 
   const handleDeleteCourse = (courseId: string) => {
+    console.log(courseId)
     setCourseToRemove(courseId);
     toggleDeleteCourseModal();
   };
 
   const onSubmitCourse = async (data: CreateCourseData) => {
     console.log(data)
-    const apiTest = axios.create({
-      baseURL: "http://localhost:8001/",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        // "aplication/json"
-      },
-    });
     try {
-      const response = await api.post('/napne/academic/courses/create', data)
-      
-      if (isSubmitted){
+      const response = await api.post(
+        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/create`, data
+      )
+
+      if (response.status === 201) {
         toggleCreateCourseModal();
         reset({});
         getAllCourses();
       }
-    } catch (err){
+    } catch (err) {
+      console.log("Erro inesperado");
+    }
+  };
+
+  const onEditCourse = async () => {
+    try {
+      const response = await api.put(
+        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/${courseToEdit}/modify`, course
+      )
+
+      if (response.status === 200) {
+        toggleCreateCourseModal();
+        reset({});
+        getAllCourses();
+      }
+    } catch (err) {
       console.log("Erro inesperado");
     }
   };
 
   const onDeleteCourse = async () => {
-    console.log("Remover este evento", courseToRemove);
-    toggleDeleteCourseModal();
+    try {
+      const response = await api.delete(
+        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/remove?id=${courseToRemove}`
+      )
+
+      if (response.status === 204) {
+        toggleDeleteCourseModal();
+        getAllCourses();
+        setCourseToRemove("");
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
 
   useEffect(() => {
