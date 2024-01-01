@@ -5,9 +5,9 @@ import Table from "../components/Table";
 import THeader from "../components/THeader";
 import Heading from "../components/Heading";
 import Modal from "../components/Modal";
-import { ControlledInput } from "../components/Input";
+import { ControlledInput, Input } from "../components/Input";
 import { ControlledSelect } from "../components/Select";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Button from "../components/Button";
@@ -18,19 +18,33 @@ import { CreateStudentData, StudentData } from "../interfaces/Student";
 import { api } from "../services/api";
 import { formatForBrazilDateStandard } from "../utils/formatDatetime";
 import { ClassData } from "../interfaces/Class";
+import { MAX_FILE_SIZE, isValidFileType } from "../utils/imageValidator";
 
 const Students: React.FC = () => {
   const schema = yup.object().shape({
     name: yup.string().required("Campo obrigatório"),
     registration: yup.string().required("Campo obrigatório"),
     dateOfBirth: yup.string().required("Campo obrigatório"),
-    picture: yup.string(),
+    picture: yup
+      .mixed()
+      .nullable()
+      .test("is-valid-type", "Faça upload apenas de imagens", (value: any) =>
+        value ? isValidFileType(value.name, "image") : true
+      )
+      .test(
+        "is-valid-size",
+        "Tamanho de imagem não pode exceder 100KB",
+        (value: any) => (value ? value && value?.size <= MAX_FILE_SIZE : true)
+      ),
     course: yup.string(),
     shift: yup.string(),
     classId: yup.string().required("Campo obrigatório"),
   });
 
-  const { control, handleSubmit, reset, watch } = useForm({
+  const { control, handleSubmit, reset, watch, setValue, getValues } = useForm({
+    defaultValues: {
+      picture: "",
+    },
     resolver: yupResolver(schema),
   });
 
@@ -90,8 +104,28 @@ const Students: React.FC = () => {
 
   const onSubmitStudent = async (data: CreateStudentData) => {
     console.log("result", data);
-    // const response = await api.post('napne/student/students/create', data)
+
+    const formData = new FormData();
+    formData.append("picture", data?.picture);
+    delete data.picture;
+
+    const [day, month, year] = data.dateOfBirth.split("/").map(Number);
+    const dateOfBirth = new Date(year, month, day).toISOString();
+    const { data: student_data } = await api.post(
+      `${process.env.VITE_MS_STUDENT_URL}/students/create`,
+      { ...data, dateOfBirth }
+    );
+    const response = await api.put(
+      `${process.env.VITE_MS_STUDENT_URL}/students/${student_data?.id}/picture`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     toggleCreateStudentModal();
+    getAllStudents();
   };
 
   const onDeleteStudent = () => {
@@ -142,12 +176,24 @@ const Students: React.FC = () => {
             label="Data de nascimento"
             placeholder="XX/XX/XXXX"
           />
-          <ControlledInput
+          <Controller
+            name={"picture"}
             control={control}
-            name="picture"
-            type="file"
-            label="Foto de perfil"
-            placeholder="XX/XX/XXXX"
+            render={({ field, fieldState }) => (
+              <Input
+                {...field}
+                type="file"
+                label="Foto de perfil"
+                onChange={({ target }) =>
+                  target.files &&
+                  target?.files?.length > 0 &&
+                  field.onChange(target.files[0])
+                }
+                value={field?.value?.filename}
+                error={!!fieldState?.error?.message}
+                helperText={fieldState?.error?.message ?? ""}
+              />
+            )}
           />
           <ControlledSelect
             control={control}
@@ -235,7 +281,10 @@ const Students: React.FC = () => {
               <TRow key={id}>
                 <TCell>
                   <div className="flex flex-row items-center gap-3">
-                    <image href="" className="w-8 h-8 bg-black rounded-full" />
+                    <img
+                      src={`${process.env.VITE_MS_STUDENT_PICTURES}/${picture}`}
+                      className="w-8 h-8 bg-black object-cover rounded-full"
+                    />
                     <span>{name}</span>
                   </div>
                 </TCell>

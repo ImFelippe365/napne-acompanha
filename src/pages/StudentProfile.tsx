@@ -58,7 +58,10 @@ const StudentProfile: React.FC = () => {
   return (
     <section className="grid grid-cols-studentProfileContainer gap-24">
       <aside className="min-[250px] overflow-y-hidden">
-        <div className="w-[100px] h-[100px] bg-slate-500 rounded-full " />
+        <img
+          src={`${process.env.VITE_MS_STUDENT_PICTURES}/${student?.picture}`}
+          className="w-[150px] h-[150px] bg-slate-500 rounded-full object-cover"
+        />
         <article className="mt-2 mb-4">
           <h3 className="text-black font-bold text-xl">{student?.name}</h3>
           <p className="text-gray">{calculeAge(student?.dateOfBirth)}</p>

@@ -17,7 +17,13 @@ interface ControlledInputProps extends InputProps {
   control: Control<any>;
 }
 
-const Input = ({ label, error, helperText, containerClassName, ...props }: InputProps) => {
+const Input = ({
+  label,
+  error,
+  helperText,
+  containerClassName,
+  ...props
+}: InputProps) => {
   return (
     <div className={containerClassName}>
       <label htmlFor={label} className="font-semibold text-black text-base">
@@ -46,10 +52,10 @@ const ControlledInput = ({ name, control, ...props }: ControlledInputProps) => {
       control={control}
       render={({ field, fieldState }) => (
         <Input
-          {...props}
           error={!!fieldState?.error?.message}
           helperText={fieldState?.error?.message ?? ""}
           {...field}
+          {...props}
         />
       )}
     />
