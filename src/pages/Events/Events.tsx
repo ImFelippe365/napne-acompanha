@@ -16,6 +16,8 @@ import LinkStudentToEventFormModal from "./components/LinkStudentToEventFormModa
 import { api } from "../../services/api";
 import { CreateEventData, EventData } from "../../interfaces/Event";
 import { formatDatetime, formatDatetimeToInput } from "../../utils/formatDatetime";
+import { useAuth } from "../../hooks/AuthContext";
+import { useQuickToast } from "../../hooks/QuickToastContext";
 
 
 const Events: React.FC = () => {
@@ -37,12 +39,19 @@ const Events: React.FC = () => {
   const [showBindStudentModal, setShowBindStudentModal] = useState(false);
 
   const [eventToRemove, setEventToRemove] = useState("");
+  const [eventToEdit, setEventToEdit] = useState<EventData>();
   const [enabledFields, setEnabledFields] = useState(true);
 
   const [eventToBind, setEventToBind] = useState("");
 
+  const [editing, setEditing] = useState(false);
+
+  const { user } = useAuth();
+
+  const { handleShowToast } = useQuickToast();
+
   const getAllEvents = async () => {
-    const { data } = await api.get("napne/academic/events/all")
+    const { data } = await api.get(`${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/events/all`)
     setEvents(data)
   };
 
@@ -70,6 +79,8 @@ const Events: React.FC = () => {
   const handleEditEvent = (event: EventData) => {
     // Só dá para setar o input de datetime com este formato: 2017-06-01T08:30
     reset(event);
+    setEditing(true);
+    setEventToEdit(event);
     setShowCreateEventModal(true);
   };
 
@@ -85,13 +96,53 @@ const Events: React.FC = () => {
   };
 
   const onSubmitEvent = async (data: CreateEventData) => {
-    console.log("Formulário: ", data);
-    toggleCreateEventModal();
+    console.log('event', data)
+    try {
+      if (!editing) {
+        const response = await api.post(
+          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/events/create`, 
+          {...data, createdBy: user?.id}
+        )
+
+        if (response.status === 201) {
+          getAllEvents();
+          toggleCreateEventModal();
+          reset({});
+          handleShowToast("success", "Evento criada com sucesso!");
+        }
+      } else {
+        const response = await api.put(
+          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/events/${eventToEdit?.id}/modify`, {...data, createdBy: user?.id}
+        )
+
+        if (response.status === 200) {
+          getAllEvents();
+          toggleCreateEventModal();
+          reset({});
+          setEditing(false)
+          handleShowToast("success", "Evento editada com sucesso!");
+        }
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
 
   const onDeleteEvent = async () => {
-    console.log("Remover este evento", eventToRemove);
-    toggleDeleteEventModal();
+    try {
+      const response = await api.delete(
+        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/events/remove?id=${eventToRemove}`
+      )
+
+      if (response.status === 204) {
+        toggleDeleteEventModal();
+        getAllEvents();
+        setEventToRemove("");
+        handleShowToast("success", "Evento excluído com sucesso!");
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
 
   useEffect(() => {

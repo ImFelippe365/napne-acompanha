@@ -2,6 +2,7 @@ export interface EventData {
   id: string;
   title: string;
   description: string;
+  createdBy: string;
   startTime: string;
   endTime: string;
 }

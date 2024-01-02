@@ -16,6 +16,7 @@ import { api } from "../services/api";
 import { formatDatetime } from "../utils/formatDatetime";
 import Loading from "../components/Loading";
 import { useAcademicManagement } from "../hooks/AcademicManegementContext";
+import { useQuickToast } from "../hooks/QuickToastContext";
 
 const Diaries: React.FC = () => {
   const schema = yup.object().shape({
@@ -33,12 +34,16 @@ const Diaries: React.FC = () => {
   const [showDeleteDiaryModal, setShowDeleteDiaryModal] = useState(false);
 
   const [diaryToRemove, setDiaryToRemove] = useState("");
+  const [diaryToEdit, setDiaryToEdit] = useState<DiaryData>();
+
 
   const {
     diaries,
     isLoadingDiaries,
     getAllDiaries
   } = useAcademicManagement();
+
+  const { handleShowToast } = useQuickToast();
 
   const toggleCreateDiaryModal = () => {
     reset({});
@@ -54,13 +59,39 @@ const Diaries: React.FC = () => {
   };
 
   const onSubmitDiary = async (data: CreateDiaryData) => {
-    console.log("data", data);
-    toggleCreateDiaryModal();
+    data.startDate = new Date(data.startDate)
+    data.endDate = new Date(data.endDate)
+    try {
+      const response = await api.post(
+        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/create`, data
+      )
+
+      if (response.status === 201) {
+        getAllDiaries();
+        toggleCreateDiaryModal();
+        reset({});
+        handleShowToast("success", "Diário criado com sucesso!");
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
 
   const onDeleteDiary = async () => {
-    console.log("Remover diário", diaryToRemove)
-    toggleDeleteDiaryModal();
+    try {
+      const response = await api.delete(
+        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/remove?id=${diaryToRemove}`
+      )
+
+      if (response.status === 204) {
+        toggleDeleteDiaryModal();
+        getAllDiaries();
+        setDiaryToRemove("");
+        handleShowToast("success", "Diário excluída com sucesso!");
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
 
   useEffect(() => {
