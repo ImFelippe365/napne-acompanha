@@ -56,12 +56,12 @@ const Overview: React.FC = () => {
           isLoading={isLoadingResources}
         />
         <ResourceCard
-          title="Turmas cadastrados"
+          title="Turmas cadastradas"
           count={resourcesCount?.classes ?? 0}
           isLoading={isLoadingResources}
         />
         <ResourceCard
-          title="Disciplinas cadastrados"
+          title="Disciplinas cadastradas"
           count={resourcesCount?.disciplines ?? 0}
           isLoading={isLoadingResources}
         />

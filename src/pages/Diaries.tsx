@@ -11,7 +11,7 @@ import { ControlledInput } from "../components/Input";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { CreateDiaryData, DiaryData } from "../interfaces/Diary";
+import { CreateDiaryData } from "../interfaces/Diary";
 import { api } from "../services/api";
 import { formatDatetime } from "../utils/formatDatetime";
 import Loading from "../components/Loading";
@@ -34,7 +34,6 @@ const Diaries: React.FC = () => {
   const [showDeleteDiaryModal, setShowDeleteDiaryModal] = useState(false);
 
   const [diaryToRemove, setDiaryToRemove] = useState("");
-  const [diaryToEdit, setDiaryToEdit] = useState<DiaryData>();
 
 
   const {

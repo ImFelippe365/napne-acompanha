@@ -57,6 +57,7 @@ const Events: React.FC = () => {
 
   const toggleCreateEventModal = () => {
     reset({});
+    setEditing(false);
     setShowCreateEventModal((visible) => !visible);
 
     if (!enabledFields) setEnabledFields(true);
@@ -161,7 +162,7 @@ const Events: React.FC = () => {
       )}
       {showCreateEventModal && (
         <Modal
-          title="Cadastrar novo evento"
+          title={`${!editing ? "Criar novo" : "Editar"} evento`}
           description="Preencha os dados para gerar um novo evento"
           onClose={() => toggleCreateEventModal()}
           onConfirm={handleSubmit(onSubmitEvent)}

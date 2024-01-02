@@ -16,6 +16,7 @@ import { ClassData, CreateClassData } from "../interfaces/Class";
 import { api } from "../services/api";
 import Loading from "../components/Loading";
 import { useAcademicManagement } from "../hooks/AcademicManegementContext";
+import { useQuickToast } from "../hooks/QuickToastContext";
 
 const Classes: React.FC = () => {
   const schema = yup.object().shape({
@@ -35,13 +36,49 @@ const Classes: React.FC = () => {
   const [showDeleteClassModal, setShowDeleteClassModal] = useState(false);
 
   const [classToRemove, setClassToRemove] = useState("");
+  const [classToEdit, setClassToEdit] = useState<ClassData>();
   const [loadingClasses, setLoadingClasses] = useState(true);
 
+  const [editing, setEditing] = useState(false);
+
   const {
+    courses,
     diaries,
-    isLoadingDiaries,
     getAllDiaries,
+    getAllCourses,
   } = useAcademicManagement();
+
+  const { handleShowToast } = useQuickToast();
+
+  const courseOptionsSelect = courses.map((course) => ({
+    label: course.name,
+    value: course.id,
+  }));
+  
+  const diaryOptionsSelect = diaries.map((diary) => ({
+    label: `${diary.referenceYear}.${diary.referencePeriod}`,
+    value: diary.id,
+  }));
+
+  const filterCourseReferencePeriodSelectOption = (courseId: string) => {
+    const course = courses.find(({ id }) => {
+      return id == courseId
+    })
+
+    if (course) {
+      const periodsSelectOptions = [];
+
+      for (let i = 1; i <= course?.periodsQuantity; i++) {
+        periodsSelectOptions.push({
+          label: i,
+          value: i
+        })
+      }
+
+      return periodsSelectOptions;
+    }
+    return;
+  }
 
   const getAllClasses = async () => {
     const { data } = await api.get(`${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/classes/all`);
@@ -51,6 +88,7 @@ const Classes: React.FC = () => {
 
   const toggleCreateClassModal = () => {
     reset({});
+    setEditing(false)
     setShowCreateClassModal((visible) => !visible);
   };
 
@@ -59,6 +97,8 @@ const Classes: React.FC = () => {
 
   const handleEditClass = async (schoolClass: ClassData) => {
     reset(schoolClass);
+    setEditing(true);
+    setClassToEdit(schoolClass);
     setShowCreateClassModal(true);
   };
 
@@ -68,17 +108,57 @@ const Classes: React.FC = () => {
   };
 
   const onSubmitClass = async (data: CreateClassData) => {
-    console.log("result", data);
-    toggleCreateClassModal();
+    try {
+      if (!editing) {
+        const response = await api.post(
+          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/classes/create`, data
+        )
+
+        if (response.status === 201) {
+          getAllClasses();
+          toggleCreateClassModal();
+          reset({});
+          handleShowToast("success", "Turma criada com sucesso!");
+        }
+      } else {
+        const response = await api.put(
+          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/classes/${classToEdit?.id}/modify`, data
+        )
+
+        if (response.status === 200) {
+          getAllClasses();
+          toggleCreateClassModal();
+          reset({});
+          setEditing(false)
+          handleShowToast("success", "Turma editada com sucesso!");
+        }
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
 
   const onDeleteClass = async () => {
-    console.log("turma para remover", classToRemove);
-    toggleDeleteClassModal();
+    try {
+      const response = await api.delete(
+        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/classes/remove?id=${classToRemove}`
+      )
+
+      if (response.status === 204) {
+        getAllClasses();
+        toggleDeleteClassModal();
+        setClassToRemove("");
+        handleShowToast("success", "Turma excluída com sucesso!");
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
 
   useEffect(() => {
     getAllClasses();
+    getAllCourses();
+    getAllDiaries();
   }, [])
 
   return (
@@ -93,10 +173,10 @@ const Classes: React.FC = () => {
       )}
       {showCreateClassModal && (
         <Modal
-          title="Criar nova turma"
+          title={`${!editing ? "Criar nova" : "Editar"} turma`}
           description="Preencha todos os dados para criar uma nova turma"
           onClose={() => toggleCreateClassModal()}
-          onConfirm={() => handleSubmit(onSubmitClass)}
+          onConfirm={handleSubmit(onSubmitClass)}
           contentClassName="flex flex-col gap-3"
         >
           <ControlledSelect
@@ -104,24 +184,14 @@ const Classes: React.FC = () => {
             name="courseId"
             label="Curso"
             placeholder="Selecione um curso"
-            options={[
-              {
-                label: "Análise e Desenvolvimento de Sistemas",
-                value: "1"
-              }
-            ]}
+            options={courseOptionsSelect}
           />
           <ControlledSelect
             control={control}
             name="diaryId"
             label="Período letivo"
             placeholder="Selecione um período letivo"
-            options={[
-              {
-                label: "2023.2",
-                value: "1"
-              }
-            ]}
+            options={diaryOptionsSelect}
           />
           <ControlledSelect
             control={control}
@@ -129,16 +199,7 @@ const Classes: React.FC = () => {
             label="Período de referência"
             placeholder="Selecione um período de referência"
             disabled={!watch("courseId")}
-            options={[
-              {
-                label: "1",
-                value: "1"
-              },
-              {
-                label: "2",
-                value: "2"
-              },
-            ]}
+            options={filterCourseReferencePeriodSelectOption(watch("courseId"))}
           />
           <ControlledSelect
             control={control}
@@ -148,15 +209,15 @@ const Classes: React.FC = () => {
             options={[
               {
                 label: "Manhã",
-                value: "1",
+                value: "Manhã",
               },
               {
                 label: "Tarde",
-                value: "1",
+                value: "Tarde",
               },
               {
                 label: "Noite",
-                value: "1",
+                value: "Noite",
               },
             ]}
           />
@@ -178,18 +239,18 @@ const Classes: React.FC = () => {
             <THeader>Curso</THeader>
             <THeader>Turno</THeader>
             <THeader>Ano e período letivo</THeader>
-            <THeader>Quantidade de alunos</THeader>
+            <THeader>Período de referência</THeader>
             <THeader>Ações</THeader>
           </TRow>
         </thead>
         <tbody>
           {loadingClasses && <Loading />}
-          {classes.map(({ id, referencePeriod, shift, courseId, course, diaryId }) => (
+          {classes.map(({ id, referencePeriod, shift, courseId, course, diaryId, diary }) => (
             <TRow key={id}>
-              <TCell contrast>{course.byname}{referencePeriod}{shift === "morning" ? "M" : shift === "Tarde" ? "V" : "N"}</TCell>
+              <TCell contrast>{course.byname}{referencePeriod}{shift === "Manhã" ? "M" : shift === "Tarde" ? "V" : "N"}</TCell>
               <TCell>{course.name}</TCell>
-              <TCell>{shift === "morning" ? "Manhã" : shift === "afternoon" ? "Tarde" : "Noite"}</TCell>
-              <TCell>2023.1</TCell>
+              <TCell>{shift}</TCell>
+              <TCell>{diary.referenceYear}.{diary.referencePeriod}</TCell>
               <TCell>{referencePeriod}</TCell>
               <TCell className={"text-primary"}>
                 <TActions
@@ -197,7 +258,7 @@ const Classes: React.FC = () => {
                   onEditClick={() => handleEditClass({
                     id: id,
                     referencePeriod: referencePeriod,
-                    shift: `${shift === "morning" ? "Manhã" : shift === "afternoon" ? "Tarde" : "Noite"}`,
+                    shift: shift,
                     diaryId: diaryId,
                     courseId: courseId
                   })}

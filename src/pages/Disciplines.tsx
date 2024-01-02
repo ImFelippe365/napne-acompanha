@@ -82,6 +82,7 @@ const Disciplines: React.FC = () => {
 
   const toggleCreateDisciplineModal = () => {
     reset({});
+    setEditing(false)
     setShowCreateDisciplineModal((visible) => !visible);
   };
 
@@ -165,7 +166,7 @@ const Disciplines: React.FC = () => {
       )}
       {showCreateDisciplineModal && (
         <Modal
-          title={`${!editing ? "Criar novo" : "Editar"} disciplina`}
+          title={`${!editing ? "Criar nova" : "Editar"} disciplina`}
           description="Preencha os dados para criar uma nova disciplina"
           onClose={() => toggleCreateDisciplineModal()}
           onConfirm={handleSubmit(onSubmitDiscipline)}
