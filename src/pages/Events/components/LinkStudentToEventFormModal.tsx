@@ -7,8 +7,11 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Checkbox } from "../../../components/Checkbox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StudentData } from "../../../interfaces/Student";
+import { api } from "../../../services/api";
+import Loading from "../../../components/Loading";
+import { Avatar } from "flowbite-react";
 
 interface LinkStudentToEventFormModalProps {
   setOpenModal: () => void;
@@ -29,6 +32,7 @@ const LinkStudentToEventFormModal = ({
 }: LinkStudentToEventFormModalProps) => {
   const [data, setData] = useState<StudentsIdsList>({});
   const [students, setStudents] = useState<StudentData[]>([])
+  const [studentsLoading, setStudentsLoading] = useState(true)
 
   const schema = yup.object().shape({
     selectedIds: yup.array().of(yup.string()).min(1, 'Selecione pelo menos um ID'),
@@ -39,7 +43,10 @@ const LinkStudentToEventFormModal = ({
   });
 
   const getAllStudents = async () => {
-    // Request to get all students
+    const { data } = await api.get(`${process.env.VITE_MS_STUDENT_URL}/students/all`)
+    setStudents(data);
+    // console.log(data)
+    setStudentsLoading(false);
   }
 
   const onSubmit = () => {
@@ -64,13 +71,18 @@ const LinkStudentToEventFormModal = ({
     }));
   };
 
-  const studentOptions = [
-    { id: "1", name: "Bruna Maria Pinto", registration: "20211094040009" },
-    { id: "2", name: "Bruna Maria Pinto", registration: "20211094040009" },
-    { id: "3", name: "Bruna Maria Pinto", registration: "20211094040009" },
-    { id: "4", name: "Bruna Maria Pinto", registration: "20211094040009" },
-    { id: "5", name: "Bruna Maria Pinto", registration: "20211094040009" }
-  ];
+  const studentOptions = students?.map((student) => ({
+    id: student.id,
+    name: student.name,
+    registration: student.registration,
+    picture: student.picture
+  })
+  )
+  console.log(studentOptions)
+
+  useEffect(() => {
+    getAllStudents();
+  }, [])
 
   return (
     <BindStudentModal
@@ -88,7 +100,8 @@ const LinkStudentToEventFormModal = ({
           </TRow>
         </thead>
         <tbody>
-          {studentOptions.map(({ id, name, registration }) => (
+          {studentsLoading && <Loading />}
+          {studentOptions?.map(({ id, name, registration, picture }) => (
             <TRow key={id}>
               <TCell>
                 <Checkbox
@@ -98,8 +111,12 @@ const LinkStudentToEventFormModal = ({
                 />
               </TCell>
               <TCell>
-                <div className="flex flex-row items-center gap-3 mr-2">
-                  <img src="#" className="w-8 h-8 bg-black rounded-full" />
+                <div className="flex flex-row items-center gap-3">
+                  <Avatar
+                    image={`${process.env.VITE_MS_STUDENT_PICTURES}/${picture}`}
+                    size={40}
+                    className="w-[50px] h-[50px]"
+                  />
                   <span>{name}</span>
                 </div>
               </TCell>
