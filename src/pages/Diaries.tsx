@@ -40,14 +40,6 @@ const Diaries: React.FC = () => {
     getAllDiaries
   } = useAcademicManagement();
 
-  // const getAllDiaries = async () => {
-  //   const { data } = await api.get(
-  //     `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/all`
-  //   );
-  //   setDiaries(data);
-  //   setLoadingDiaries(false);
-  // }
-
   const toggleCreateDiaryModal = () => {
     reset({});
     setShowCreateDiaryModal((visible) => !visible);
