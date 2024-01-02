@@ -15,6 +15,8 @@ import { ControlledSelect } from "../components/Select";
 import { CreateDisciplineData, DisciplineData } from "../interfaces/Discipline";
 import { api } from "../services/api";
 import Loading from "../components/Loading";
+import { useAcademicManagement } from "../hooks/AcademicManegementContext";
+import { useQuickToast } from "../hooks/QuickToastContext";
 
 const Disciplines: React.FC = () => {
   const schema = yup.object().shape({
@@ -35,8 +37,42 @@ const Disciplines: React.FC = () => {
   const [showDeleteDisciplineModal, setShowDeleteDisciplineModal] = useState(false);
 
   const [disciplineToRemove, setDisciplineToRemove] = useState("");
+  const [disciplineToEdit, setDisciplineToEdit] = useState<DisciplineData>();
   const [loadingDisciplines, setLoadingDisciplines] = useState(true);
 
+  const [editing, setEditing] = useState(false);
+
+  const {
+    courses,
+    getAllCourses,
+  } = useAcademicManagement();
+
+  const { handleShowToast } = useQuickToast();
+
+  const courseOptionsSelect = courses.map((course) => ({
+    label: course.name,
+    value: course.id,
+  }));
+
+  const filterCourseReferencePeriodSelectOption = (courseId: string) => {
+    const course = courses.find(({ id }) => {
+      return id == courseId
+    })
+
+    if (course) {
+      const periodsSelectOptions = [];
+  
+      for (let i = 1; i <= course?.periodsQuantity; i++){
+        periodsSelectOptions.push({
+          label: i,
+          value: i
+        })
+      }
+  
+      return periodsSelectOptions;
+    }
+    return;
+  }
 
   const getAllDisciplines = async () => {
     const { data } = await api.get(`${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/disciplines/all`)
@@ -54,6 +90,8 @@ const Disciplines: React.FC = () => {
 
   const handleEditDiscipline = (discipline: DisciplineData) => {
     reset(discipline);
+    setEditing(true);
+    setDisciplineToEdit(discipline);
     setShowCreateDisciplineModal(true);
   };
 
@@ -62,18 +100,57 @@ const Disciplines: React.FC = () => {
     toggleDeleteDisciplineModal();
   };
 
-  const onSubmitDiscipline = (data: CreateDisciplineData) => {
-    console.log("result", data)
-    toggleCreateDisciplineModal();
+  const onSubmitDiscipline = async (data: CreateDisciplineData) => {
+    try {
+      if (!editing) {
+        const response = await api.post(
+          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/disciplines/create`, data
+        )
+
+        if (response.status === 201) {
+          getAllDisciplines();
+          toggleCreateDisciplineModal();
+          reset({});
+          handleShowToast("success", "Disciplina criada com sucesso!");
+        }
+      } else {
+        const response = await api.put(
+          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/disciplines/${disciplineToEdit?.id}/modify`, data
+        )
+
+        if (response.status === 200) {
+          getAllDisciplines();
+          toggleCreateDisciplineModal();
+          reset({});
+          setEditing(false)
+          handleShowToast("success", "Disciplina editada com sucesso!");
+        }
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
 
-  const onDeleteDiscipline = () => {
-    console.log("disciplina para remover", disciplineToRemove);
-    toggleDeleteDisciplineModal();
+  const onDeleteDiscipline = async () => {
+    try {
+      const response = await api.delete(
+        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/disciplines/remove?id=${disciplineToRemove}`
+      )
+
+      if (response.status === 204) {
+        toggleDeleteDisciplineModal();
+        getAllDisciplines();
+        setDisciplineToRemove("");
+        handleShowToast("success", "Disciplina excluída com sucesso!");
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
 
   useEffect(() => {
-    getAllDisciplines()
+    getAllDisciplines();
+    getAllCourses();
   }, [])
 
   return (
@@ -88,10 +165,10 @@ const Disciplines: React.FC = () => {
       )}
       {showCreateDisciplineModal && (
         <Modal
-          title="Criar nova disciplina"
+          title={`${!editing ? "Criar novo" : "Editar"} disciplina`}
           description="Preencha os dados para criar uma nova disciplina"
           onClose={() => toggleCreateDisciplineModal()}
-          onConfirm={() => handleSubmit(onSubmitDiscipline)}
+          onConfirm={handleSubmit(onSubmitDiscipline)}
           contentClassName="flex flex-col gap-3"
         >
           <ControlledInput
@@ -129,12 +206,7 @@ const Disciplines: React.FC = () => {
             name="courseId"
             label="Curso"
             placeholder="Selecione um curso"
-            options={[
-              {
-                label: "Análise e Desenvolvimento de Sistemas",
-                value: "1",
-              },
-            ]}
+            options={courseOptionsSelect}
           />
           <ControlledSelect
             control={control}
@@ -142,16 +214,7 @@ const Disciplines: React.FC = () => {
             label="Período de referência"
             placeholder="Selecione um período de referência"
             disabled={!watch("courseId")}
-            options={[
-              {
-                label: "1",
-                value: "1"
-              },
-              {
-                label: "2",
-                value: "2"
-              },
-            ]}
+            options={filterCourseReferencePeriodSelectOption(watch("courseId"))}
           />
         </Modal>
       )}

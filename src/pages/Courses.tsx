@@ -17,6 +17,7 @@ import { api } from "../services/api"
 import axios from "axios"
 import Loading from "../components/Loading"
 import { useAcademicManagement } from "../hooks/AcademicManegementContext"
+import { useQuickToast } from "../hooks/QuickToastContext"
 
 const Courses: React.FC = () => {
   const schema = yup.object().shape({
@@ -44,21 +45,17 @@ const Courses: React.FC = () => {
 
   const [editing, setEditing] = useState(false);
 
-  // const getAllCourses = async () => {
-  //   const { data } = await api.get(
-  //     `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/all`
-  //   );
-  //   setCourses(data);
-  //   setLoadingCourses(false);
-  // };
   const {
     courses,
     isLoadingCourses,
     getAllCourses,
   } = useAcademicManagement();
 
+  const { handleShowToast } = useQuickToast();
+
   const toggleCreateCourseModal = () => {
     reset({});
+    setEditing(false)
     setShowCreateCourseModal((visible) => !visible);
 
     if (!enabledFields) setEnabledFields(true);
@@ -74,37 +71,38 @@ const Courses: React.FC = () => {
   };
 
   const handleDeleteCourse = (courseId: string) => {
-    console.log(courseId)
     setCourseToRemove(courseId);
     toggleDeleteCourseModal();
   };
 
   const onSubmitCourse = async (data: CreateCourseData) => {
     try {
-      if (editing) {
-        const response = await api.put(
-          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/${courseToEdit?.id}/modify`, data
-        )
-
-        if (response.status === 200) {
-          toggleCreateCourseModal();
-          setEditing(false)
-          reset({});
-          getAllCourses();
-        }
-      } else {
+      if (!editing) {
         const response = await api.post(
           `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/create`, data
         )
 
         if (response.status === 201) {
+          getAllCourses();
           toggleCreateCourseModal();
           reset({});
+          handleShowToast("success", "Curso criada com sucesso!");
+        }
+      } else {
+        const response = await api.put(
+          `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/${courseToEdit?.id}/modify`, data
+        )
+
+        if (response.status === 200) {
           getAllCourses();
+          toggleCreateCourseModal();
+          reset({});
+          setEditing(false)
+          handleShowToast("success", "Curso editada com sucesso!");
         }
       }
     } catch (err) {
-      console.log("Erro inesperado");
+      console.log("Ocorreu um erro inesperado");
     }
   };
 
@@ -118,6 +116,7 @@ const Courses: React.FC = () => {
         toggleDeleteCourseModal();
         getAllCourses();
         setCourseToRemove("");
+        handleShowToast("success", "Curso excluído com sucesso!");
       }
     } catch (err) {
       console.log("Ocorreu um erro inesperado");
@@ -140,7 +139,7 @@ const Courses: React.FC = () => {
       )}
       {showCreateCourseModal && (
         <Modal
-          title="Criar novo curso"
+          title={`${!editing ? "Criar novo" : "Editar"} curso`}
           description="Preencha os dados para criar um novo curso"
           onClose={() => toggleCreateCourseModal()}
           onConfirm={handleSubmit(onSubmitCourse)}
