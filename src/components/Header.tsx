@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { BiUser } from "react-icons/bi";
 import Avatar from "./Avatar";
 import { useAuth } from "../hooks/AuthContext";
+import UserTooltip from "./UserTooltip";
 
 const Header: React.FC = () => {
   const { user } = useAuth();
@@ -54,8 +55,7 @@ const Header: React.FC = () => {
         </ul>
       </nav>
       <div className="bg-primary-transparent  rounded-full">
-        {/* <BiUser className="text-xl  text-primary" /> */}
-        <Avatar image={`${process.env.VITE_SUAP_URL}${user?.picture}`} />
+        <UserTooltip />
       </div>
     </header>
   );

@@ -322,6 +322,7 @@ const Students: React.FC = () => {
                     <Avatar
                       image={`${process.env.VITE_MS_STUDENT_PICTURES}/${picture}`}
                       size={40}
+                      className="w-[50px] h-[50px]" 
                     />
                     <span>{name}</span>
                   </div>

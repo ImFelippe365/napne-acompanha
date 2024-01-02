@@ -90,7 +90,11 @@ export const SignIn = () => {
             type="password"
           />
 
-          <Button loading={isSubmitting} className="w-full mt-6" type="submit">
+          <Button
+            isLoading={isSubmitting}
+            className="w-full mt-6"
+            type="submit"
+          >
             Entrar
           </Button>
         </form>

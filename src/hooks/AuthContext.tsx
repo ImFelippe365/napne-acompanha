@@ -12,6 +12,7 @@ interface AuthContextValues {
   setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
   login: (credentials: Credentials) => Promise<any>;
   restoreSession: () => Promise<void>;
+  logout: () => void;
 }
 
 const AuthContext = createContext({} as AuthContextValues);
@@ -21,7 +22,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = useCallback(async (credentials: Credentials) => {
     try {
-      const { data } = await api.post("authentication/login", credentials);
+      const { data } = await api.post(
+        `${process.env.VITE_MS_GATEWAY_URL}/authentication/login`,
+        credentials
+      );
       const { user, access_token } = data as AuthenticationResponse;
 
       setUser(user);
@@ -53,11 +57,17 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, []);
 
+  const logout = () => {
+    localStorage.clear();
+    setUser(undefined);
+  };
+
   const contextValues = {
     user,
     setUser,
     login,
     restoreSession,
+    logout,
   };
 
   return (

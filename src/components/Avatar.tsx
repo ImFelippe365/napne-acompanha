@@ -5,9 +5,11 @@ interface AvatarProps {
   image?: string;
   size?: number;
   className?: string;
+  onClick?: () => void;
+  onBlur?: () => void;
 }
 
-const Avatar = ({ image, size = 40, className }: AvatarProps) => {
+const Avatar = ({ image, size = 40, className, onClick, onBlur }: AvatarProps) => {
   const [showDefaultImage, setShowDefaultImage] = useState(false);
   if (!image || showDefaultImage)
     return (
@@ -19,11 +21,15 @@ const Avatar = ({ image, size = 40, className }: AvatarProps) => {
     );
 
   return (
-    <img
-      className={`rounded-full object-cover w-[${size}px] h-[${size}px] ${className}`}
-      src={image}
-      onError={() => setShowDefaultImage(true)}
-    />
+    <button className={`${!onClick ? "cursor-default" : ""}`} onClick={onClick} onBlur={onBlur}>
+      <img
+        className={`rounded-full object-cover w-[${size}px] h-[${size}px] ${
+          className ?? ""
+        }`}
+        src={image}
+        onError={() => setShowDefaultImage(true)}
+      />
+    </button>
   );
 };
 
