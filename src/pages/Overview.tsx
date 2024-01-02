@@ -8,7 +8,11 @@ const Overview: React.FC = () => {
   const todayTime = today.getHours();
 
   const grettingsMessage =
-    todayTime >= 12 ? "Boa tarde" : todayTime >= 0 ? "Bom dia" : "Boa noite";
+    todayTime >= 0 && todayTime < 12
+      ? "Bom dia"
+      : todayTime >= 12 && todayTime < 18
+      ? "Boa tarde"
+      : "Boa noite";
 
   return (
     <>
