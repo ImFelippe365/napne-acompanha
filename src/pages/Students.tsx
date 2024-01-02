@@ -25,6 +25,7 @@ import { calculeAge } from "../utils/calculeAge";
 import { CourseData } from "../interfaces/Course";
 import { formatShift } from "../utils/formatShift";
 import { shifts } from "../utils/shifts";
+import Avatar from "../components/Avatar";
 
 const Students: React.FC = () => {
   const schema = yup.object().shape({
@@ -318,9 +319,9 @@ const Students: React.FC = () => {
               <TRow key={id}>
                 <TCell>
                   <div className="flex flex-row items-center gap-3">
-                    <img
-                      src={`${process.env.VITE_MS_STUDENT_PICTURES}/${picture}`}
-                      className="w-8 h-8 bg-black object-cover rounded-full"
+                    <Avatar
+                      image={`${process.env.VITE_MS_STUDENT_PICTURES}/${picture}`}
+                      size={40}
                     />
                     <span>{name}</span>
                   </div>

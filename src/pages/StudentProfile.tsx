@@ -5,17 +5,14 @@ import { IoDocumentText, IoSchool, IoCalendarNumber } from "react-icons/io5";
 import { calculeAge } from "../utils/calculeAge";
 import { useStudent } from "../hooks/StudentContext";
 import Loading from "../components/Loading";
+import Avatar from "../components/Avatar";
 
 const StudentProfile: React.FC = () => {
   const { pathname } = useLocation();
   const { id } = useParams();
   const currentPath = `/discentes/${id}/${pathname?.split("/")[3]}`;
 
-  const {
-    student,
-    isLoadingStudent,
-    getStudentDetails,
-  } = useStudent();
+  const { student, isLoadingStudent, getStudentDetails } = useStudent();
 
   useEffect(() => {
     getStudentDetails(id ?? "");
@@ -48,9 +45,10 @@ const StudentProfile: React.FC = () => {
   return (
     <section className="grid grid-cols-studentProfileContainer gap-24">
       <aside className="min-[250px] overflow-y-hidden">
-        <img
-          src={`${process.env.VITE_MS_STUDENT_PICTURES}/${student?.picture}`}
-          className="w-[150px] h-[150px] bg-slate-500 rounded-full object-cover"
+        <Avatar
+          image={`${process.env.VITE_MS_STUDENT_PICTURES}/${student?.picture}`}
+          className="w-[150px] h-[150px]"
+          size={150}
         />
         <article className="mt-2 mb-4">
           <h3 className="text-black font-bold text-xl">{student?.name}</h3>

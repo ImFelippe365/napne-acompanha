@@ -1,8 +1,11 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { BiUser } from "react-icons/bi";
+import Avatar from "./Avatar";
+import { useAuth } from "../hooks/AuthContext";
 
 const Header: React.FC = () => {
+  const { user } = useAuth();
   const { pathname } = useLocation();
   const currentPath = "/" + pathname?.split("/")[1];
 
@@ -38,10 +41,11 @@ const Header: React.FC = () => {
             <Link to={path} key={index}>
               <li
                 key={index}
-                className={`p-4 text-gray font-normal inset-0 relative hover:opacity-80 ${currentPath === pathParent
+                className={`p-4 text-gray font-normal inset-0 relative hover:opacity-80 ${
+                  currentPath === pathParent
                     ? "text-primary !font-semibold border-b-2"
                     : "headerNavOption"
-                  }`}
+                }`}
               >
                 {title}
               </li>
@@ -49,8 +53,9 @@ const Header: React.FC = () => {
           ))}
         </ul>
       </nav>
-      <div className="bg-primary-transparent p-2 rounded-full">
-        <BiUser className="text-xl  text-primary" />
+      <div className="bg-primary-transparent  rounded-full">
+        {/* <BiUser className="text-xl  text-primary" /> */}
+        <Avatar image={`${process.env.VITE_SUAP_URL}${user?.picture}`} />
       </div>
     </header>
   );
