@@ -22,7 +22,7 @@ const Disciplines: React.FC = () => {
   const schema = yup.object().shape({
     name: yup.string().required("Campo obrigatório"),
     code: yup.string().required("Campo obrigatório"),
-    referencePeriod: yup.number().required("Campo obrigatório"),
+    referencePeriod: yup.number().notRequired(),
     courseId: yup.string().required("Campo obrigatório"),
     isOptative: yup.boolean().required("Campo obrigatório"),
   });
@@ -110,6 +110,10 @@ const Disciplines: React.FC = () => {
 
   const onSubmitDiscipline = async (data: CreateDisciplineData) => {
     try {
+      if (data.isOptative === true) {
+        delete data.referencePeriod 
+      }
+      console.log(data)
       if (!editing) {
         const response = await api.post(
           `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/disciplines/create`, data
@@ -258,7 +262,7 @@ const Disciplines: React.FC = () => {
               <TCell>{code}</TCell>
               <TCell contrast>{name}</TCell>
               <TCell>{course.name}</TCell>
-              <TCell>{referencePeriod}º</TCell>
+              <TCell>{referencePeriod}{referencePeriod && "º"}</TCell>
               <TCell>{isOptative ? "Sim" : "Não"}</TCell>
               <TCell className={"text-primary"}>
                 <TActions
