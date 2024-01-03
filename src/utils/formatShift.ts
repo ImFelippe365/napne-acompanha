@@ -10,6 +10,7 @@ export const formatShift = (shift: Shift) => {
     case "NIGHT":
       return "Noite";
     default:
+      return shift
       break;
   }
 };

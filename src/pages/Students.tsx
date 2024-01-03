@@ -26,6 +26,8 @@ import { CourseData } from "../interfaces/Course";
 import { formatShift } from "../utils/formatShift";
 import { shifts } from "../utils/shifts";
 import Avatar from "../components/Avatar";
+import BindStudentDisciplineModal from "../components/BindStudentDisciplineModal";
+import { DisciplineData } from "../interfaces/Discipline";
 
 const Students: React.FC = () => {
   const schema = yup.object().shape({
@@ -94,11 +96,21 @@ const Students: React.FC = () => {
 
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
   const [showDeleteStudentModal, setShowDeleteStudentModal] = useState(false);
+  const [showBindStudentToDiscipline, setShowBindStudentToDiscipline] =
+    useState(false);
 
   const [studentToRemove, setStudentToRemove] = useState("");
   const [isDeletingStudent, setIsDeletingStudent] = useState(false);
 
   const [loadingStudents, setLoadingStudents] = useState(true);
+
+  const [studentToBind, setStudentToBind] = useState<StudentData>();
+  const [studentClassDisciplines, setStudentClassDisciplines] = useState<
+    DisciplineData[]
+  >([]);
+  const [studentCourseDisciplines, setStudentCourseDisciplines] = useState<
+    DisciplineData[]
+  >([]);
 
   const getAllStudents = async () => {
     const { data } = await api.get(
@@ -150,6 +162,20 @@ const Students: React.FC = () => {
     navigate(`/discentes/${studentId}/dados-pessoais`);
   };
 
+  const getClassDisciplines = async (classId: string) => {
+    const { data } = await api.get(
+      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/disciplines/by-class/${classId}/all`
+    );
+    setStudentClassDisciplines(data);
+  };
+
+  const getCourseDisciplines = async (courseId: string) => {
+    const { data } = await api.get(
+      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/disciplines/by-course/${courseId}/all`
+    );
+    setStudentCourseDisciplines(data);
+  };
+
   const onSubmitStudent = async (data: CreateStudentData) => {
     const formData = new FormData();
     formData.append("picture", data?.picture as any);
@@ -157,14 +183,14 @@ const Students: React.FC = () => {
 
     const [day, month, year] = data.dateOfBirth.split("/").map(Number);
     const dateOfBirth = new Date(year, month, day).toISOString();
-    const { data: student_data } = await api.post(
+    const { data: studentData } = await api.post(
       `${process.env.VITE_MS_STUDENT_URL}/students/create`,
       { ...data, dateOfBirth }
     );
 
     if (formData.get("picture") !== "undefined") {
       await api.put(
-        `${process.env.VITE_MS_STUDENT_URL}/students/${student_data?.id}/picture`,
+        `${process.env.VITE_MS_STUDENT_URL}/students/${studentData?.id}/picture`,
         formData,
         {
           headers: {
@@ -175,9 +201,33 @@ const Students: React.FC = () => {
     }
     handleShowToast("success", "Estudante criado com sucesso!");
     toggleCreateStudentModal();
+    setStudentToBind(studentData);
     getAllStudents();
+    console.log("aqui", studentData);
+    getClassDisciplines(studentData?.classId);
+    getCourseDisciplines(studentData?.schoolClass?.courseId);
 
-    return student_data;
+    setShowBindStudentToDiscipline(true);
+
+    return studentData;
+  };
+
+  const onSubmitStudentDisciplines = async (disciplines: DisciplineData[]) => {
+    const response = await api.post(
+      `${process.env.VITE_MS_STUDENT_URL}/students/disciplines/create`,
+      disciplines.map(({ id }) => ({
+        studentId: studentToBind?.id,
+        disciplineId: id,
+        diaryId: studentToBind?.schoolClass?.diaryId,
+      }))
+    );
+
+    if (response.status === 201) {
+      handleShowToast("success", "Disciplinas vinculadas ao estudante!");
+      setShowBindStudentToDiscipline(false);
+    } else {
+      handleShowToast("error", "Erro ao tentar vincular disciplinas");
+    }
   };
 
   const onDeleteStudent = async () => {
@@ -197,6 +247,20 @@ const Students: React.FC = () => {
 
   return (
     <>
+      {showBindStudentToDiscipline && (
+        <BindStudentDisciplineModal
+          title="Vincular disciplinas ao estudante"
+          description="Selecione as disciplinas que o estudante cursa"
+          contentClassName="min-w-[600px]"
+          classDisciplines={studentClassDisciplines}
+          allCourseDisciplines={studentCourseDisciplines}
+          onClose={() => setShowBindStudentToDiscipline(false)}
+          onConfirm={() => {}}
+          submitDisciplines={(disciplines) =>
+            onSubmitStudentDisciplines(disciplines)
+          }
+        />
+      )}
       {showDeleteStudentModal && (
         <Modal
           title="Tem certeza?"
@@ -322,7 +386,7 @@ const Students: React.FC = () => {
                     <Avatar
                       image={`${process.env.VITE_MS_STUDENT_PICTURES}/${picture}`}
                       size={40}
-                      className="w-[50px] h-[50px]" 
+                      className="w-[50px] h-[50px]"
                     />
                     <span>{name}</span>
                   </div>
