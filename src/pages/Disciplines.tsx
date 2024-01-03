@@ -220,6 +220,7 @@ const Disciplines: React.FC = () => {
             placeholder="Selecione um curso"
             options={courseOptionsSelect}
           />
+          {/* {watch("isOptative")} */}
           <ControlledSelect
             control={control}
             name="referencePeriod"
