@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts/core";
 import { BarChart } from "echarts/charts";
 
@@ -26,6 +26,11 @@ import Heading from "../components/Heading";
 import { IoMdAdd } from "react-icons/io";
 import { Select } from "../components/Select";
 import TActions from "../components/TActions";
+import { StudentGrade } from "../interfaces/Student";
+import { Grade } from "../interfaces/Grade";
+import { useAuth } from "../hooks/AuthContext";
+import { api } from "../services/api";
+import { useQuickToast } from "../hooks/QuickToastContext";
 
 echarts.use([
   TitleComponent,
@@ -36,33 +41,38 @@ echarts.use([
 ]);
 
 interface GradeData {
-  score: number;
-  bimester: number;
+  score?: number;
+  grades: number[];
   disciplineId: string;
-  attributedBy: string;
-  studentId: string;
-  diaryId: string;
 }
 
 const StudentGrades: React.FC = () => {
   const schema = yup.object().shape({
-    score: yup.number().required("Campo obrigatório"),
-    bimester: yup.number().required("Campo obrigatório"),
-    disciplineId: yup.string().required("Campo obrigatório"),
-    attributedBy: yup.string().required("Campo obrigatório"),
-    studentId: yup.string().required("Campo obrigatório"),
-    diaryId: yup.string().required("Campo obrigatório"),
+    grades: yup.array(
+      yup.object({
+        score: yup.string().test({
+          message: "A nota deve ser igual ou menor que 100",
+          test: (value) => {
+            if (!value) return true;
+            return Number(value) <= 100 && Number(value) >= 0;
+          },
+        }),
+        bimester: yup.number(),
+        disciplineId: yup.number(),
+      })
+    ),
   });
 
-  const { control, handleSubmit } = useForm({
-    resolver: yupResolver(schema),
-  });
+  const echartRef = useRef(null);
 
+  const { user } = useAuth();
+  const { handleShowToast } = useQuickToast();
   const { diaries, getAllDiaries } = useAcademicManagement();
 
   const {
     student,
     grades,
+    getStudentGrades,
     isLoadingGrades,
     selectedDiaryToGrades,
     setSelectedDiaryToGrades,
@@ -70,6 +80,10 @@ const StudentGrades: React.FC = () => {
     setSelectedDiaryToGraph,
   } = useStudent();
 
+  const { control, handleSubmit, setValue, watch, getValues, reset } = useForm({
+    // defaultValues: grades,
+    // resolver: yupResolver(schema),
+  });
   // const [diaries, setDiaries] = useState<DiaryData[]>([]);
 
   // const getAllDiaries = async () => {
@@ -103,15 +117,79 @@ const StudentGrades: React.FC = () => {
     setShowAddGradeModal((visible) => !visible);
   };
 
-  const onSubmitGrade = async (data: GradeData) => {
+  const onSubmitGrade = async (data: any) => {
     console.log("form", data);
+    const formattedGrades = data.grades.map(({ grades }: StudentGrade) =>
+      grades.map((grade) => ({
+        id: grade.gradeId,
+        disciplineId: grade.disciplineId,
+        bimester: grade.bimester,
+        studentId: student?.id,
+        diaryId: student?.schoolClass?.diaryId,
+        attributedBy: user?.id,
+        score: grade?.score ? Number(grade.score) : undefined,
+      }))
+    );
 
-    return toggleAddGrade();
+    console.log(formattedGrades);
+
+    formattedGrades.forEach((grades) => {
+      grades.forEach(async (bimester) => {
+        await api.put(
+          `${process.env.VITE_MS_STUDENT_URL}/grades/${bimester.id}/modify`,
+          bimester
+        );
+      });
+    });
+
+    toggleAddGrade();
+    getStudentGrades();
+    handleShowToast("success", "Notas cadastradas");
+    reset({});
+
+    return formattedGrades;
   };
+
+  const [gradesToGraph, setGradesToGraph] = useState([
+    {
+      name: "Desenvolvimento de Sistemas",
+      data: [10, 22, 28, 43, 49],
+      type: "line",
+      stack: "x",
+      smooth: true,
+    },
+    {
+      name: "Teste de software",
+      data: [5, 4, 3, 5, 10],
+      type: "line",
+      stack: "x",
+      smooth: true,
+    },
+  ]);
+
+  useEffect(() => {
+    if (grades.length > 0) {
+      setValue("grades", grades);
+      const newGrades = grades.map((grade) => {
+        const currentGrades = grade.grades.map(({ score }) => score);
+        return {
+          name: grade.name,
+          data: currentGrades,
+          type: "line",
+          stack: "x",
+          smooth: true,
+        };
+      });
+      console.log("ta assim", newGrades[0].data);
+      setGradesToGraph(newGrades);
+    }
+  }, [grades]);
 
   useEffect(() => {
     getAllDiaries();
   }, []);
+
+  const listedGrades = getValues("grades") as StudentGrade[];
 
   return (
     <>
@@ -120,7 +198,7 @@ const StudentGrades: React.FC = () => {
           title="Cadastrar notas"
           description="Preencha os dados para alterar as notas deste estudante"
           onClose={() => toggleAddGrade()}
-          onConfirm={handleSubmit(onSubmitGrade)}
+          onConfirm={handleSubmit(onSubmitGrade, (error) => console.log(error))}
           contentClassName="flex flex-col gap-4"
         >
           <Table className="mt-2 min-w-[600px]">
@@ -135,19 +213,41 @@ const StudentGrades: React.FC = () => {
             </thead>
             <tbody>
               {isLoadingGrades && <Loading message="Carregando notas..." />}
-              {/* {!isLoadingGrades && grades.length === 0 && (
-                <div>Nenhuma nota cadastrada</div>
-              )} */}
-              {grades.map((disciplineGrades) => (
+
+              {listedGrades.map((disciplineGrades, index) => (
                 <TRow key={disciplineGrades.id}>
                   <TCell contrast>{disciplineGrades.name}</TCell>
-                  {/* {disciplineGrades.grades.map((grade) => (
-                    <TCell key={grade.gradeId}>{grade.score}</TCell>
-                  ))} */}
-                  <TCell>
+                  {disciplineGrades.grades.map((grade, gradeIndex) => (
+                    <TCell key={grade.gradeId}>
+                      <ControlledInput
+                        control={control}
+                        name={`grades[${index}].grades[${gradeIndex}].score`}
+                        label=""
+                        maxLength={3}
+                        defaultValue={
+                          disciplineGrades.grades.find(
+                            (grade) => grade.bimester === gradeIndex + 1
+                          )?.score ?? ""
+                        }
+                        containerClassName="w-[60px]"
+                        className="text-center"
+                        placeholder="-"
+                        // onChange={(value) => {
+                        //   setValue("grades[0].score", value);
+                        //   setValue(
+                        //     "grades[0].disciplineId",
+                        //     disciplineGrades.id
+                        //   );
+                        //   setValue("grades[0].bimester", index + 1);
+                        // }}
+                        // value={watch("grades[0].score") ?? ""}
+                      />
+                    </TCell>
+                  ))}
+                  {/* <TCell>
                     <ControlledInput
                       control={control}
-                      name="bimester.1"
+                      name={`${index}.grades[0].score`}
                       label=""
                       maxLength={3}
                       defaultValue={
@@ -158,12 +258,18 @@ const StudentGrades: React.FC = () => {
                       containerClassName="w-[60px]"
                       className="text-center"
                       placeholder="-"
+                      onChange={(value) => {
+                        setValue("grades[0].score", value);
+                        setValue("grades[0].disciplineId", disciplineGrades.id);
+                        setValue("grades[0].bimester", index + 1);
+                      }}
+                      value={watch("grades[0].score") ?? ""}
                     />
                   </TCell>
                   <TCell>
                     <ControlledInput
                       control={control}
-                      name="bimester.2"
+                      name="grades[1].score"
                       label=""
                       maxLength={3}
                       defaultValue={
@@ -179,7 +285,7 @@ const StudentGrades: React.FC = () => {
                   <TCell>
                     <ControlledInput
                       control={control}
-                      name="bimester.3"
+                      name="grades[2].score"
                       label=""
                       maxLength={3}
                       defaultValue={
@@ -195,7 +301,7 @@ const StudentGrades: React.FC = () => {
                   <TCell>
                     <ControlledInput
                       control={control}
-                      name="bimester.4"
+                      name="grades[3].score"
                       label=""
                       maxLength={3}
                       defaultValue={
@@ -207,7 +313,7 @@ const StudentGrades: React.FC = () => {
                       className="text-center"
                       placeholder="-"
                     />
-                  </TCell>
+                  </TCell> */}
                 </TRow>
               ))}
             </tbody>
@@ -240,7 +346,7 @@ const StudentGrades: React.FC = () => {
           className={`flex flex-row items-center gap-2 py-2 `}
         >
           <IoMdAdd className="text-xl  text-white" />
-          <span>Adicionar nota</span>
+          <span>Gerenciar notas</span>
         </Button>
       </Heading>
       <section className="flex flex-row items-center justify-between mt-4">
@@ -262,26 +368,28 @@ const StudentGrades: React.FC = () => {
             <THeader>2° Nota</THeader>
             <THeader>3° Nota</THeader>
             <THeader>4° Nota</THeader>
-            <THeader>Ações</THeader>
+            {/* <THeader>Ações</THeader> */}
           </TRow>
         </thead>
         <tbody>
-          {grades.map((disciplineGrades) => (
-            <TRow key={disciplineGrades.id}>
-              <TCell contrast>{disciplineGrades.name}</TCell>
-              {disciplineGrades.grades.map((grade) => (
-                <TCell key={grade.gradeId}>{grade.score}</TCell>
-              ))}
+          {isLoadingGrades && <Loading message="Carregando notas..." />}
+          {!isLoadingGrades &&
+            grades.map((disciplineGrades) => (
+              <TRow key={disciplineGrades.id}>
+                <TCell contrast>{disciplineGrades.name}</TCell>
+                {disciplineGrades.grades.map((grade) => (
+                  <TCell key={grade.gradeId}>{grade.score}</TCell>
+                ))}
 
-              <TCell>
+                {/* <TCell>
                 <TActions
                   showList={false}
                   showRemove={false}
                   onEditClick={() => handleEditGrade()}
                 />
-              </TCell>
-            </TRow>
-          ))}
+              </TCell> */}
+              </TRow>
+            ))}
         </tbody>
       </Table>
 
@@ -299,49 +407,40 @@ const StudentGrades: React.FC = () => {
       </section>
 
       <ReactECharts
+        ref={echartRef}
         className="w-full flex flex-1 h-screen"
         option={{
           xAxis: {
-            data: ["2020.1", "2020.2", "2021.1", "2021.2", "2022.1"],
+            data: ["1° bimestre", "2° bimestre", "3° bimestre", "4° bimestre"],
+            // data: diaries
+            //   .filter((diary) => diary.id === selectedDiaryToGraph)
+            //   .map(
+            //     (diary) => `${diary.referenceYear}.${diary.referencePeriod}`
+            //   ),
           },
           yAxis: {},
           legend: {
-            data: ["Desenvolvimento de Sistemas", "Teste de software"],
+            data: grades.map((grade) => grade.name),
           },
-          toltip: {
-            triggerOn: "none",
-            formatter: function (params) {
-              return (
-                "X: " +
-                params.data[0].toFixed(2) +
-                "<br>Y: " +
-                params.data[1].toFixed(2)
-              );
-            },
-          },
-          series: [
-            {
-              name: "Desenvolvimento de Sistemas",
-              data: [10, 22, 28, 43, 49],
-              type: "line",
-              stack: "x",
-              smooth: true,
-            },
-            {
-              name: "Teste de software",
-              data: [5, 4, 3, 5, 10],
-              type: "line",
-              stack: "x",
-              smooth: true,
-            },
-          ],
+          // toltip: {
+          //   triggerOn: "none",
+          //   formatter: function (params) {
+          //     return (
+          //       "X: " +
+          //       params.data[0].toFixed(2) +
+          //       "<br>Y: " +
+          //       params.data[1].toFixed(2)
+          //     );
+          //   },
+          // },
+          series: gradesToGraph.length === 0 ? [] : gradesToGraph,
         }}
         style={{
           height: "400px",
         }}
         notMerge={true}
         lazyUpdate={true}
-        // showLoading
+        showLoading={isLoadingGrades}
         // theme={"theme_name"}
         onEvents={onEvents}
         opts={{ renderer: "svg" }}

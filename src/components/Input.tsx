@@ -55,8 +55,8 @@ const ControlledInput = ({ name, control, ...props }: ControlledInputProps) => {
         <Input
           error={!!fieldState?.error?.message}
           helperText={fieldState?.error?.message ?? ""}
-          {...field}
           {...props}
+          {...field}
         />
       )}
     />

@@ -123,13 +123,9 @@ const BindStudentDisciplineModal = ({
         ))}
       </section>
 
-      {(totalLength !== allCourseDisciplines?.length &&
-        !!allCourseDisciplines) ||
-        (totalLength === 0 && (
-          <Button onClick={() => showAllDisciplines()}>
-            Exibir todas as disciplinas
-          </Button>
-        ))}
+      <Button onClick={() => showAllDisciplines()}>
+        Exibir todas as disciplinas
+      </Button>
     </Modal>
   );
 };

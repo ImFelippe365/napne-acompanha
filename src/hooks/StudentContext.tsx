@@ -68,8 +68,9 @@ const StudentProvider = ({ children }: StudentProviderProps) => {
           : `${process.env.VITE_MS_STUDENT_URL}/grades/${student?.id}`
       );
 
-      setGrades(data ?? []);
       setIsLoadingGrades(false);
+      console.log("EU RETORNO ASSIM", data);
+      setGrades(data ?? []);
     },
     [student, selectedDiaryToGrades]
   );
