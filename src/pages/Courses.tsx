@@ -31,7 +31,7 @@ const Courses: React.FC = () => {
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitted }
+    formState: { isSubmitting }
   } = useForm({
     resolver: yupResolver(schema)
   })
@@ -144,6 +144,7 @@ const Courses: React.FC = () => {
           onClose={() => toggleCreateCourseModal()}
           onConfirm={handleSubmit(onSubmitCourse)}
           contentClassName="flex flex-col gap-4"
+          isLoading={isSubmitting}
         >
           <ControlledInput
             control={control}

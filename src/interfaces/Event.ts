@@ -1,3 +1,5 @@
+import { StudentData } from "./Student";
+
 export interface EventData {
   id: string;
   title: string;
@@ -12,4 +14,11 @@ export interface CreateEventData {
   description: string;
   startTime: string;
   endTime: string;
+}
+
+export interface EventParticipations {
+  id: string;
+  eventId: string;
+  studentId: string;
+  student: StudentData;
 }

@@ -14,6 +14,8 @@ import Button from "../components/Button";
 import { IoMdAdd } from "react-icons/io";
 import { ControlledSelect } from "../components/Select";
 import { api } from "../services/api";
+import { EventData } from "../interfaces/Event";
+import { useQuickToast } from "../hooks/QuickToastContext";
 
 interface CreateStudentParticipation {
   studentId: string;
@@ -38,14 +40,19 @@ const StudentEvents: React.FC = () => {
     setShowDeleteEventParticipationModal,
   ] = useState(false);
 
+  const [events, setEvents] = useState<EventData>([]);
+
   const [eventParticipationToRemove, setEventParticipationToRemove] =
     useState("");
 
-  const getAllEvents = () => {
-    // Request to get all events
-    const {data} = api.get("academic/events/all")
+  const { handleShowToast } = useQuickToast();
 
-  }
+  const getAllEvents = async () => {
+    const { data } = await api.get(
+      `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/events/all`
+    )
+    setEvents(data)
+  } 
 
   const getEventParticipates = () => {
     // Eventos participados
@@ -68,7 +75,20 @@ const StudentEvents: React.FC = () => {
     data: CreateStudentParticipation
   ) => {
     console.log("Formulário: ", data);
-    toggleCreateEventModal();
+    try {
+      const response = await api.post(
+        `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/classes/create`, data
+      )
+
+      if (response.status === 201) {
+        // getAllClasses();
+        toggleCreateEventModal();
+        reset({});
+        handleShowToast("success", "Turma criada com sucesso!");
+      }
+    } catch (err){
+      console.log("Ocorreu um erro inesperado.")
+    }
   };
 
   const onDeleteEventParticipation = async () => {
