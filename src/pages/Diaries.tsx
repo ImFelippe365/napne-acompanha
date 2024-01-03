@@ -26,7 +26,12 @@ const Diaries: React.FC = () => {
     endDate: yup.string().required("Campo obrigatório")
   });
 
-  const { control, handleSubmit, reset } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting }
+  } = useForm({
     resolver: yupResolver(schema)
   });
 
@@ -34,7 +39,7 @@ const Diaries: React.FC = () => {
   const [showDeleteDiaryModal, setShowDeleteDiaryModal] = useState(false);
 
   const [diaryToRemove, setDiaryToRemove] = useState("");
-
+  const [isDeletingDiary, setIsDeletingDiary] = useState(false);
 
   const {
     diaries,
@@ -78,6 +83,7 @@ const Diaries: React.FC = () => {
 
   const onDeleteDiary = async () => {
     try {
+      setIsDeletingDiary(true);
       const response = await api.delete(
         `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/diaries/remove?id=${diaryToRemove}`
       )
@@ -86,6 +92,7 @@ const Diaries: React.FC = () => {
         toggleDeleteDiaryModal();
         getAllDiaries();
         setDiaryToRemove("");
+        setIsDeletingDiary(false);
         handleShowToast("success", "Diário excluída com sucesso!");
       }
     } catch (err) {
@@ -105,6 +112,7 @@ const Diaries: React.FC = () => {
           description="Deseja excluir este diário permanentemente?"
           onClose={() => toggleDeleteDiaryModal()}
           onConfirm={() => onDeleteDiary()}
+          isLoading={isDeletingDiary}
         />
       )}
 
@@ -115,6 +123,7 @@ const Diaries: React.FC = () => {
           onClose={() => toggleCreateDiaryModal()}
           onConfirm={handleSubmit(onSubmitDiary)}
           contentClassName="flex flex-col gap-3"
+          isLoading={isSubmitting}
         >
           <ControlledInput
             control={control}

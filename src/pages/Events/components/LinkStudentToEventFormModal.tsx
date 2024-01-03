@@ -12,6 +12,8 @@ import { StudentData } from "../../../interfaces/Student";
 import { api } from "../../../services/api";
 import Loading from "../../../components/Loading";
 import { Avatar } from "flowbite-react";
+import { useQuickToast } from "../../../hooks/QuickToastContext";
+import { EventParticipations } from "../../../interfaces/Event";
 
 interface LinkStudentToEventFormModalProps {
   setOpenModal: () => void;
@@ -32,15 +34,21 @@ const LinkStudentToEventFormModal = ({
 }: LinkStudentToEventFormModalProps) => {
   const [data, setData] = useState<StudentsIdsList>({});
   const [students, setStudents] = useState<StudentData[]>([])
+  const [eventsParticipations, setEventsParticipations] = useState<EventParticipations[]>([])
   const [studentsLoading, setStudentsLoading] = useState(true)
 
   const schema = yup.object().shape({
     selectedIds: yup.array().of(yup.string()).min(1, 'Selecione pelo menos um ID'),
   });
 
-  const { handleSubmit } = useForm({
+  const {
+    handleSubmit,
+    formState: { isSubmitting }
+  } = useForm({
     resolver: yupResolver(schema),
   });
+
+  const { handleShowToast } = useQuickToast();
 
   const getAllStudents = async () => {
     const { data } = await api.get(`${process.env.VITE_MS_STUDENT_URL}/students/all`)
@@ -49,18 +57,40 @@ const LinkStudentToEventFormModal = ({
     setStudentsLoading(false);
   }
 
-  const onSubmit = () => {
+  const getAllEventsParticipations = async () => {
+    const { data } = await api.get(`${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/events/${eventToBind}/students/all`)
+
+    console.log(data)
+    setEventsParticipations(data);
+  }
+
+  const onSubmit = async () => {
     console.log(data)
 
     const selectedIdsTrue = Object.entries(data)
       .filter(([_, value]) => value === true)
       .map(([key]) => key);
 
-    const formattedData: StudentsToBind = {}
+    const formattedData = selectedIdsTrue.map((value) => {
+      console.log('values', value)
+      if (value !== eventToBind) {
+        return {
+          studentId: value,
+          eventId: eventToBind
+        };
+      }
+    });
 
-    selectedIdsTrue.map((value) => {
-      formattedData[value] = eventToBind
-    })
+    const response = await api.post(
+      `${process.env.VITE_MS_STUDENT_URL}/students/events/link`, formattedData
+    )
+
+    if (response.status === 201) {
+      // getAllClasses();
+      setOpenModal();
+      // reset({});
+      handleShowToast("success", "Turma criada com sucesso!");
+    }
   };
 
   const handleCheckboxChange = (id: string, checked: boolean) => {
@@ -81,12 +111,13 @@ const LinkStudentToEventFormModal = ({
   console.log(studentOptions)
 
   useEffect(() => {
+    getAllEventsParticipations();
     getAllStudents();
   }, [])
 
   return (
     <BindStudentModal
-      title="Vincular estudantes"
+      title={`${eventsParticipations.length < 0 ? "Vincular estudantes" : "Estudantes vinculados"}`}
       description="Selecione os estudantes que deseja vincular"
       onClose={() => setOpenModal()}
       onConfirm={handleSubmit(onSubmit)}
@@ -94,14 +125,29 @@ const LinkStudentToEventFormModal = ({
       <Table className="mt-8">
         <thead>
           <TRow>
-            <THeader> </THeader>
+            {eventsParticipations.length <= 0 && <THeader> </THeader>}
             <THeader>Nome</THeader>
             <THeader>Matrícula</THeader>
           </TRow>
         </thead>
         <tbody>
           {studentsLoading && <Loading />}
-          {studentOptions?.map(({ id, name, registration, picture }) => (
+          {eventsParticipations.map(({id, student, studentId}) => (
+            <TRow key={id}>
+              <TCell>
+                <div className="flex flex-row items-center gap-3">
+                  {/* <Avatar
+                    image={`${process.env.VITE_MS_STUDENT_PICTURES}/${picture}`}
+                    size={40}
+                    className="w-[50px] h-[50px]"
+                  /> */}
+                  <span>{student.name}</span>
+                </div>
+              </TCell>
+              <TCell>{student.registration}</TCell>
+            </TRow>
+          ))}
+          {eventsParticipations.length <= 0 && (studentOptions?.map(({ id, name, registration, picture }) => (
             <TRow key={id}>
               <TCell>
                 <Checkbox
@@ -122,7 +168,7 @@ const LinkStudentToEventFormModal = ({
               </TCell>
               <TCell>{registration}</TCell>
             </TRow>
-          ))}
+          )))}
         </tbody>
       </Table>
     </BindStudentModal>

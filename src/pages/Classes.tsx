@@ -26,7 +26,13 @@ const Classes: React.FC = () => {
     diaryId: yup.string().required("Campo obrigatório"),
   });
 
-  const { control, handleSubmit, reset, watch } = useForm({
+  const { 
+    control, 
+    handleSubmit, 
+    reset, 
+    watch,
+    formState: { isSubmitting }
+  } = useForm({
     resolver: yupResolver(schema),
   });
 
@@ -40,6 +46,7 @@ const Classes: React.FC = () => {
   const [loadingClasses, setLoadingClasses] = useState(true);
 
   const [editing, setEditing] = useState(false);
+  const [isDeletingClass, setIsDeletingClass] = useState(false);
 
   const {
     courses,
@@ -140,6 +147,7 @@ const Classes: React.FC = () => {
 
   const onDeleteClass = async () => {
     try {
+      setIsDeletingClass(true);
       const response = await api.delete(
         `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/classes/remove?id=${classToRemove}`
       )
@@ -148,6 +156,7 @@ const Classes: React.FC = () => {
         getAllClasses();
         toggleDeleteClassModal();
         setClassToRemove("");
+        setIsDeletingClass(false);
         handleShowToast("success", "Turma excluída com sucesso!");
       }
     } catch (err) {
@@ -169,6 +178,7 @@ const Classes: React.FC = () => {
           description="Deseja excluir esta turma permanentemente?"
           onClose={() => toggleDeleteClassModal()}
           onConfirm={() => onDeleteClass()}
+          isLoading={isDeletingClass}
         />
       )}
       {showCreateClassModal && (
@@ -178,6 +188,7 @@ const Classes: React.FC = () => {
           onClose={() => toggleCreateClassModal()}
           onConfirm={handleSubmit(onSubmitClass)}
           contentClassName="flex flex-col gap-3"
+          isLoading={isSubmitting}
         >
           <ControlledSelect
             control={control}
