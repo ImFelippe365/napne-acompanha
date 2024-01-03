@@ -27,7 +27,13 @@ const Disciplines: React.FC = () => {
     isOptative: yup.boolean().required("Campo obrigatório"),
   });
 
-  const { control, handleSubmit, reset, watch } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { isSubmitting }
+  } = useForm({
     resolver: yupResolver(schema),
   })
 
@@ -39,6 +45,7 @@ const Disciplines: React.FC = () => {
   const [disciplineToRemove, setDisciplineToRemove] = useState("");
   const [disciplineToEdit, setDisciplineToEdit] = useState<DisciplineData>();
   const [loadingDisciplines, setLoadingDisciplines] = useState(true);
+  const [isDeletingDiscipline, setIsDeletingDiscipline] = useState(false);
 
   const [editing, setEditing] = useState(false);
 
@@ -61,14 +68,14 @@ const Disciplines: React.FC = () => {
 
     if (course) {
       const periodsSelectOptions = [];
-  
-      for (let i = 1; i <= course?.periodsQuantity; i++){
+
+      for (let i = 1; i <= course?.periodsQuantity; i++) {
         periodsSelectOptions.push({
           label: i,
           value: i
         })
       }
-  
+
       return periodsSelectOptions;
     }
     return;
@@ -134,6 +141,7 @@ const Disciplines: React.FC = () => {
 
   const onDeleteDiscipline = async () => {
     try {
+      setIsDeletingDiscipline(true);
       const response = await api.delete(
         `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/disciplines/remove?id=${disciplineToRemove}`
       )
@@ -142,6 +150,7 @@ const Disciplines: React.FC = () => {
         toggleDeleteDisciplineModal();
         getAllDisciplines();
         setDisciplineToRemove("");
+        setIsDeletingDiscipline(false);
         handleShowToast("success", "Disciplina excluída com sucesso!");
       }
     } catch (err) {
@@ -162,6 +171,7 @@ const Disciplines: React.FC = () => {
           description="Deseja excluir esta disciplina permanentemente?"
           onClose={() => toggleDeleteDisciplineModal()}
           onConfirm={() => onDeleteDiscipline()}
+          isLoading={isDeletingDiscipline}
         />
       )}
       {showCreateDisciplineModal && (
@@ -171,6 +181,7 @@ const Disciplines: React.FC = () => {
           onClose={() => toggleCreateDisciplineModal()}
           onConfirm={handleSubmit(onSubmitDiscipline)}
           contentClassName="flex flex-col gap-3"
+          isLoading={isSubmitting}
         >
           <ControlledInput
             control={control}

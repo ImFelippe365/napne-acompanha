@@ -28,7 +28,12 @@ const Events: React.FC = () => {
     endTime: yup.string().required("Campo obrigatório"),
   });
 
-  const { control, handleSubmit, reset } = useForm({
+  const { 
+    control, 
+    handleSubmit, 
+    reset, 
+    formState: { isSubmitting }
+  } = useForm({
     resolver: yupResolver(schema),
   });
 
@@ -45,6 +50,7 @@ const Events: React.FC = () => {
   const [eventToBind, setEventToBind] = useState("");
 
   const [editing, setEditing] = useState(false);
+  const [isDeletingEvent, setIsDeletingEvent] = useState(false);
 
   const { user } = useAuth();
 
@@ -131,6 +137,7 @@ const Events: React.FC = () => {
 
   const onDeleteEvent = async () => {
     try {
+      setIsDeletingEvent(true);
       const response = await api.delete(
         `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/events/remove?id=${eventToRemove}`
       )
@@ -139,6 +146,7 @@ const Events: React.FC = () => {
         toggleDeleteEventModal();
         getAllEvents();
         setEventToRemove("");
+        setIsDeletingEvent(false);
         handleShowToast("success", "Evento excluído com sucesso!");
       }
     } catch (err) {
@@ -158,6 +166,7 @@ const Events: React.FC = () => {
           description="Deseja excluir este evento permanentemente?"
           onClose={() => toggleDeleteEventModal()}
           onConfirm={() => onDeleteEvent()}
+          isLoading={isDeletingEvent}
         />
       )}
       {showCreateEventModal && (
@@ -167,6 +176,7 @@ const Events: React.FC = () => {
           onClose={() => toggleCreateEventModal()}
           onConfirm={handleSubmit(onSubmitEvent)}
           contentClassName="flex flex-col gap-4"
+          isLoading={isSubmitting}
         >
           <ControlledInput
             control={control}

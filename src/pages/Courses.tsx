@@ -44,6 +44,7 @@ const Courses: React.FC = () => {
   const [enabledFields, setEnabledFields] = useState(true);
 
   const [editing, setEditing] = useState(false);
+  const [isDeletingCourse, setIsDeletingCourse] = useState(false);
 
   const {
     courses,
@@ -108,6 +109,7 @@ const Courses: React.FC = () => {
 
   const onDeleteCourse = async () => {
     try {
+      setIsDeletingCourse(true);
       const response = await api.delete(
         `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/courses/remove?id=${courseToRemove}`
       )
@@ -116,6 +118,7 @@ const Courses: React.FC = () => {
         toggleDeleteCourseModal();
         getAllCourses();
         setCourseToRemove("");
+        setIsDeletingCourse(false);
         handleShowToast("success", "Curso excluído com sucesso!");
       }
     } catch (err) {
@@ -135,6 +138,7 @@ const Courses: React.FC = () => {
           description="Deseja excluir este curso permanentemente?"
           onClose={() => toggleDeleteCourseModal()}
           onConfirm={() => onDeleteCourse()}
+          isLoading={isDeletingCourse}
         />
       )}
       {showCreateCourseModal && (
