@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { StudentData } from "../../../interfaces/Student";
 import { api } from "../../../services/api";
 import Loading from "../../../components/Loading";
-import { Avatar } from "flowbite-react";
+import Avatar from "../../../components/Avatar";
 import { useQuickToast } from "../../../hooks/QuickToastContext";
 import { EventParticipations } from "../../../interfaces/Event";
 
@@ -108,7 +108,6 @@ const LinkStudentToEventFormModal = ({
     picture: student.picture
   })
   )
-  console.log(studentOptions)
 
   useEffect(() => {
     getAllEventsParticipations();
@@ -132,7 +131,7 @@ const LinkStudentToEventFormModal = ({
         </thead>
         <tbody>
           {studentsLoading && <Loading />}
-          {eventsParticipations.map(({id, student, studentId}) => (
+          {eventsParticipations.map(({ id, student, studentId }) => (
             <TRow key={id}>
               <TCell>
                 <div className="flex flex-row items-center gap-3">
@@ -163,7 +162,7 @@ const LinkStudentToEventFormModal = ({
                     size={40}
                     className="w-[50px] h-[50px]"
                   />
-                  <span>{name}</span>
+                  <span className="mr-4">{name}</span>
                 </div>
               </TCell>
               <TCell>{registration}</TCell>

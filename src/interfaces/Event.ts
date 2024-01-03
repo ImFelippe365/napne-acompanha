@@ -21,4 +21,5 @@ export interface EventParticipations {
   eventId: string;
   studentId: string;
   student: StudentData;
+  event: EventData;
 }

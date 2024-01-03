@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TActions from "../components/TActions";
 import TCell from "../components/TCell";
 import TRow from "../components/TRow";
@@ -14,8 +14,10 @@ import Button from "../components/Button";
 import { IoMdAdd } from "react-icons/io";
 import { ControlledSelect } from "../components/Select";
 import { api } from "../services/api";
-import { EventData } from "../interfaces/Event";
+import { EventData, EventParticipations } from "../interfaces/Event";
 import { useQuickToast } from "../hooks/QuickToastContext";
+import { formatDatetime } from "../utils/formatDatetime";
+import { useStudent } from "../hooks/StudentContext";
 
 interface CreateStudentParticipation {
   studentId: string;
@@ -31,6 +33,11 @@ const StudentEvents: React.FC = () => {
     resolver: yupResolver(schema),
   });
 
+  const {
+    student,
+    getStudentDetails,
+  } = useStudent();
+
   const [
     showCreateEventParticipationModal,
     setShowCreateEventParticipationModal,
@@ -41,9 +48,12 @@ const StudentEvents: React.FC = () => {
   ] = useState(false);
 
   const [events, setEvents] = useState<EventData>([]);
+  const [eventsParticipations, setEventsParticipations] = useState<EventParticipations[]>([]);
 
   const [eventParticipationToRemove, setEventParticipationToRemove] =
     useState("");
+
+  const [isDeletingEventParticipation, setIsDeletingEventParticipation] = useState(false);
 
   const { handleShowToast } = useQuickToast();
 
@@ -51,11 +61,15 @@ const StudentEvents: React.FC = () => {
     const { data } = await api.get(
       `${process.env.VITE_MS_ACADEMIC_MANAGEMENT_URL}/events/all`
     )
-    setEvents(data)
-  } 
 
-  const getEventParticipates = () => {
-    // Eventos participados
+    setEvents(data)
+  }
+
+  const getEventParticipations = async () => {
+    const { data } = await api.get(
+      `${process.env.VITE_MS_STUDENT_URL}/students/${student?.id}/events/all`
+    )
+    setEventsParticipations(data)
   }
 
   const toggleCreateEventModal = () => {
@@ -66,8 +80,8 @@ const StudentEvents: React.FC = () => {
   const toggleDeleteEventModal = () =>
     setShowDeleteEventParticipationModal((visible) => !visible);
 
-  const handleDeleteEvent = (eventId: string) => {
-    setEventParticipationToRemove(eventId);
+  const handleDeleteEvent = (id: string) => {
+    setEventParticipationToRemove(id);
     toggleDeleteEventModal();
   };
 
@@ -86,15 +100,34 @@ const StudentEvents: React.FC = () => {
         reset({});
         handleShowToast("success", "Turma criada com sucesso!");
       }
-    } catch (err){
+    } catch (err) {
       console.log("Ocorreu um erro inesperado.")
     }
   };
 
   const onDeleteEventParticipation = async () => {
     console.log("Remover este evento", eventParticipationToRemove);
-    toggleDeleteEventModal();
+    try {
+      // setIsDeletingDiscipline(true);
+      const response = await api.delete(
+        `${process.env.VITE_MS_STUDENT_URL}/students/events/${eventParticipationToRemove}/remove`
+      )
+
+      if (response.status === 204) {
+        toggleDeleteEventModal();
+        getEventParticipations();
+        setEventParticipationToRemove("");
+        // setIsDeletingDiscipline(false);
+        handleShowToast("success", "Disciplina excluída com sucesso!");
+      }
+    } catch (err) {
+      console.log("Ocorreu um erro inesperado");
+    }
   };
+
+  useEffect(() => {
+    getEventParticipations();
+  }, [])
 
   return (
     <>
@@ -129,13 +162,13 @@ const StudentEvents: React.FC = () => {
         </Modal>
       )}
       <Heading title="Participação em eventos">
-        <Button
+        {/* <Button
           onClick={() => toggleCreateEventModal()}
           className="flex flex-row items-center gap-2 py-3"
         >
           <IoMdAdd className="text-xl  text-white" />
           <span>Adicionar participação em evento</span>
-        </Button>
+        </Button> */}
       </Heading>
 
       <Table className="mt-8">
@@ -149,23 +182,23 @@ const StudentEvents: React.FC = () => {
           </TRow>
         </thead>
         <tbody>
-          <TRow>
-            <TCell contrast>Abertura do NADIC</TCell>
-            <TCell>13 de março de 2023 às 16:20</TCell>
-            <TCell>13 de março de 2023 às 18:00</TCell>
-            <TCell className="w-1/3 pr-6">
-              Evento de abertura do NADIC do ano letivo de 2023 e apresentação
-              para os novatos do campus para se interessarem e ingressarem em
-              projetos.
-            </TCell>
-            <TCell>
-              <TActions
-                showList={false}
-                showEdit={false}
-                onRemoveClick={() => handleDeleteEvent("1")}
-              />
-            </TCell>
-          </TRow>
+          {eventsParticipations.map(({ id, event }) => (
+            <TRow key={id}>
+              <TCell contrast>{event.title}</TCell>
+              <TCell>{formatDatetime(event.startTime, true)}</TCell>
+              <TCell>{formatDatetime(event.endTime, true)}</TCell>
+              <TCell className="w-1/3 pr-6">
+                {event.description}
+              </TCell>
+              <TCell>
+                <TActions
+                  showList={false}
+                  showEdit={false}
+                  onRemoveClick={() => handleDeleteEvent(id)}
+                />
+              </TCell>
+            </TRow>
+          ))}
         </tbody>
       </Table>
     </>

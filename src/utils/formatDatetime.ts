@@ -21,10 +21,15 @@ export const formatDatetime = (datetime: string, includeTime: boolean = false) =
 
 export const formatDatetimeToInput = (datetime: string) => {
   if (!datetime) return datetime;
-  const formattedDatetime = new Date(datetime);
-  console.log(formatDatetime)
-
-  return (`${formattedDatetime.getUTCFullYear}-${formattedDatetime.getMonth}-${formattedDatetime.getUTCDay}T${formattedDatetime.getUTCHours}:${formattedDatetime.getUTCMinutes}`)
+  const date = new Date(datetime)
+  const dateString = datetime.substring(0, 10)
+  const year = dateString.slice(0, 4)
+  const month = dateString.slice(5, 7)
+  const day = dateString.slice(8, 10)
+  const formattedDatetime = `${year}-${month}-${day}T${date.toLocaleTimeString("pt-br", { timeStyle: "short" })}`
+  console.log(formattedDatetime)
+  
+  return formattedDatetime
 };
 
 export const formatForBrazilDateStandard = (datetime?: string) => {

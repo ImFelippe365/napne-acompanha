@@ -6,11 +6,12 @@ interface THeaderProps
     HTMLTableCellElement
   > {
   children: React.ReactNode;
+  contentClassName?: string;
 }
 
-const THeader = ({ children, ...props }: THeaderProps) => {
+const THeader = ({ children, contentClassName, ...props }: THeaderProps) => {
   return (
-    <th className="font-bold text-gray text-xs uppercase text-left" {...props}>
+    <th className={`font-bold text-gray text-xs uppercase text-left ${contentClassName}`} {...props}>
       {children}
     </th>
   );

@@ -398,24 +398,25 @@ const Students: React.FC = () => {
                 <TCell>
                   <TActions
                     onListClick={() => handleViewStudent(id)}
-                    onEditClick={() =>
-                      handleEditStudent({
-                        id: id,
-                        name: name,
-                        classId: classId,
-                        dateOfBirth: formatForBrazilDateStandard(dateOfBirth),
-                        picture: picture,
-                        shift: `${
-                          shift === "morning"
-                            ? "Manhã"
-                            : shift === "afternoon"
-                            ? "Tarde"
-                            : "Noite"
-                        }`,
-                        registration: registration,
-                        schoolClass: schoolClass,
-                      })
-                    }
+                    showEdit={false}
+                    // onEditClick={() =>
+                    //   handleEditStudent({
+                    //     id: id,
+                    //     name: name,
+                    //     classId: classId,
+                    //     dateOfBirth: formatForBrazilDateStandard(dateOfBirth),
+                    //     picture: picture,
+                    //     shift: `${
+                    //       shift === "morning"
+                    //         ? "Manhã"
+                    //         : shift === "afternoon"
+                    //         ? "Tarde"
+                    //         : "Noite"
+                    //     }`,
+                    //     registration: registration,
+                    //     schoolClass: schoolClass,
+                    //   })
+                    // }
                     onRemoveClick={() => handleDeleteStudent(id)}
                   />
                 </TCell>
