@@ -126,6 +126,9 @@ const BindStudentDisciplineModal = ({
       <Button onClick={() => showAllDisciplines()}>
         Exibir todas as disciplinas
       </Button>
+      <Button onClick={() => showAllDisciplines()}>
+        Exibir todas as disciplinas
+      </Button>
     </Modal>
   );
 };

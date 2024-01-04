@@ -12,7 +12,7 @@ export interface DisciplineData {
 
 export interface CreateDisciplineData {
   name: string;
-  referencePeriod: number;
+  referencePeriod?: number;
   code: string;
   isOptative: boolean;
   courseId: string;

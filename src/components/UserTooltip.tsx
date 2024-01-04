@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import Avatar from "./Avatar";
 import { useAuth } from "../hooks/AuthContext";
 import { FiLogOut } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const UserTooltip: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -27,7 +29,10 @@ const UserTooltip: React.FC = () => {
               </span>
             </li>
             <li
-              onClick={() => logout()}
+              onClick={() => {
+                logout();
+                navigate("entrar");
+              }}
               className="w-full px-4 py-3 flex items-center gap-2 cursor-pointer"
             >
               <FiLogOut className="text-error text-lg" />

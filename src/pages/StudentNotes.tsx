@@ -113,6 +113,7 @@ const StudentNotes: React.FC = () => {
           </div>
 
           <article className="text-black font-normal text-sm ml-11">
+            <p className="text-xs font-semibold text-gray">{note.title}</p>
             {note.description}
           </article>
         </section>

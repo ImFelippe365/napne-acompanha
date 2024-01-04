@@ -9,19 +9,32 @@ interface AvatarProps {
   onBlur?: () => void;
 }
 
-const Avatar = ({ image, size = 40, className, onClick, onBlur }: AvatarProps) => {
+const Avatar = ({
+  image,
+  size = 40,
+  className,
+  onClick,
+  onBlur,
+}: AvatarProps) => {
   const [showDefaultImage, setShowDefaultImage] = useState(false);
   if (!image || showDefaultImage)
     return (
       <div
-        className={`flex items-center justify-center bg-primary-transparent p-2 rounded-full w-[${size}px] h-[${size}px]`}
+        onClick={onClick}
+        className={`flex items-center justify-center bg-primary-transparent p-2 rounded-full ${
+          onClick ? "cursor-pointer" : ""
+        } w-[${size}px] h-[${size}px]`}
       >
         <BiUser size={size / 2} className={`text-xl text-primary`} />
       </div>
     );
 
   return (
-    <button className={`${!onClick ? "cursor-default" : ""}`} onClick={onClick} onBlur={onBlur}>
+    <button
+      className={`${!onClick ? "cursor-pointer" : ""}`}
+      onClick={onClick}
+      onBlur={onBlur}
+    >
       <img
         className={`rounded-full object-cover w-[${size}px] h-[${size}px] ${
           className ?? ""
